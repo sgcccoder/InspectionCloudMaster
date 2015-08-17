@@ -1,6 +1,21 @@
+{% load staticfiles %}
+<!DOCTYPE html>
 <html>
-  <body>
-  <title>应用巡检自动化系统</title>
-  <h1>测试用例提交成功</h1>
-  </body>
+	<head>
+		<meta charset="utf-8">
+		<meta name="author" content="zyl">
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/> 
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.css' %}"/>
+		
+		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
+    </head>
+	<body>
+    <title>测试用例提交成功</title>
+	<div class="jumbotron">
+		<h2>测试用例提交成功</h2>
+		<a href="../home" class="btn btn-large btn-primary">回到主页</a>
+		<a href="../uploadtestcase" class="btn btn-large btn-primary ">继续添加测试用例</a>
+    </div>
+	</body>
 </html>

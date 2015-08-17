@@ -2,12 +2,13 @@
 from .forms import ReportForm, TestCaseForm
 from .models import Report, System, TestCase
 from InspectionCloudMaster.settings import MEDIA_ROOT, BASE_DIR
+from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import F
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
-from django.template.context import Context
+from django.template.context import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 import datetime
@@ -22,7 +23,6 @@ import zipfile
 
 #每页展示的报告数目
 REPORT_PER_PAGE = 50;
-TEST_CASE_ROOT = 'D:\\testcase'
 LOG_ROOT = 'D:\\autoInspectionLog'
 
 current = time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
@@ -166,7 +166,7 @@ def upload_testcase(request):
           上传测试用例界面
     '''
     systems = System.objects.all()
-    return render_to_response('upload_testcase.html', {'systems': systems})
+    return render_to_response('upload_testcase.html', {'systems': systems}, context_instance=RequestContext(request))
 
 @csrf_exempt
 def post_testcase(request):
@@ -178,15 +178,16 @@ def post_testcase(request):
         form = TestCaseForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            q_system = systems.filter(system = data['system'])
-            instance = TestCase(system = q_system, name = data['name'], case = data['case'])
+            q_system = systems.filter(name=data['system'])
+            system_instance = q_system[0]
+            instance = TestCase(system = system_instance, name = data['name'], content = data['content'])
             instance.save()
             logger.info('测试用例已存入数据库')
             return HttpResponseRedirect('/uploadtestcasesuccess/')
     else:
         form = TestCaseForm()
    
-    return render_to_response('upload_testcase.html', {'systems': systems})
+    return render_to_response('upload_testcase.html', {'form': form})
 
 #def handle_uploaded_testcase_file(f, system, name):
 #    '''

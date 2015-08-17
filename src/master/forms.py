@@ -10,4 +10,4 @@ class ReportForm(forms.Form):
 class TestCaseForm(forms.Form):
     system = forms.CharField()
     name = forms.CharField()
-    case = forms.CharField()
+    content = forms.CharField(widget=forms.Textarea)
