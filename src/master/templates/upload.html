@@ -1,0 +1,33 @@
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <body>
+  <title>应用巡检自动化系统</title>
+  <h1>提交报告</h1>
+	  <form enctype="multipart/form-data" method="POST" action="/uploadreport/">
+	   {% csrf_token %}
+	   <label>测试系统</label>
+	   <input type="text" name="system", value="OA">
+	   <br />
+	   <label>省份</label>
+	   <input type="text" name="province", value="北京">
+	   <br />
+	   <label>城市</label>
+	   <input type="text" name="city", value="北京">
+	   <br />
+	   <label>报告提交人员</label>
+	   <input type="text" name="reporter", value="张三">
+	   <br /> 
+	   <input type="file" name="zip" />
+	   <br /> 
+	   <input type="submit" value="提交报告" /> 
+	  </form>
+
+  {% for field in form %}
+    <div class="fieldWrapper">
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }}
+    </div>
+  {% endfor %}
+
+  </body>
+</html>

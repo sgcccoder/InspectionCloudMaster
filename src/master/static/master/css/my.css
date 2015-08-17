@@ -1,0 +1,36 @@
+/* reportlistS */
+
+#reportlist {
+    width:90%;
+	margin-left:auto;
+	margin-right:auto;
+	border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+
+#condition{
+   border-bottom: 1px solid #ddd;
+   padding: 20px 8px 0px;
+   text-align: left;
+}
+
+
+table, th, tr, td{
+   border: 1px solid gray;
+   text-align:center;
+}
+
+tr.good{
+  background:  rgb(153, 255, 102);
+}
+
+tr.bad{
+  background: rgb(254, 67, 101);
+}
+
+.pagination{
+  width: 20%;
+  margin-left: auto;  
+  margin-right: auto;  
+}

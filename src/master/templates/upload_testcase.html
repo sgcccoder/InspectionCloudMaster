@@ -1,0 +1,57 @@
+﻿{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="author" content="zyl">
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/> 
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.css' %}"/>
+		
+		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
+    </head>
+	<body>
+		<title>提交测试用例</title>
+		<div class="page-header">
+			<h3>上传测试用例</h3>
+		</div>
+		<form class="form-horizontal" enctype="multipart/form-data" method="POST" action="/posttestcase/">
+			<div class="form-group">
+				<label for="system" class="col-md-2 control-label">系统</label>
+				<div class="col-md-10">
+					<select id="system" >
+						<option value="" selected>—— 系统 ——</option>
+						{% for system in systems %}
+						<option value={{system.name}}>{{system.name}}</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="test-case-name" class="col-md-2 control-label">测试用例名称</label>
+				<div class="col-md-10">
+					<input type="text" id="test-case-name"/>
+			    </div>
+			</div>
+			<div class="form-group">
+				<label for="test-case" class="col-md-2 control-label">测试用例</label>
+				<div class="col-md-10">
+					<textarea class="form-control" rows="5"></textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-10">
+					<button type="submit" class="btn btn-primary">上传</button>
+				</div>
+			</div>
+		</form>	
+
+	{% for field in form %}
+    <div class="fieldWrapper">
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }}
+    </div>
+	{% endfor %}
+
+	</body>
+</html>

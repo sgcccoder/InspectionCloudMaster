@@ -1,0 +1,45 @@
+﻿<div id="reportlist">
+	<table class="table">
+		<thead>
+			<tr>
+				<th>系统</th>
+				<th>省份</th>
+				<th>城市</th>
+				<th>检测功能点总数</th>
+				<th>通过检测的功能点数目</th>
+				<th>通过率</th>
+				<th>报告提交时间</th>
+				<th>报告提交人员</th>
+				<th>详细报告</th>
+			</tr>
+		</thead>  
+		<tbody>
+			{% for report in reports %}
+			{% if report.total_num == report.pass_num %}
+			<tr class="good">
+			{% else %}
+			<tr class="bad">
+			{% endif %}	
+				<td>{{report.system}}</td>
+				<td>{{report.province}}</td>
+				<td>{{report.city}}</td>
+				<td>{{report.total_num}}</td>
+				<td>{{report.pass_num}}</td>
+				<td>{% widthratio report.pass_num report.total_num 100 %}%</td>
+				<td>{{report.sub_time|date:"Y-m-d H:i:s"}}</td>
+				<td>{{report.reporter}}</td>     
+				<td><a href= {{report.report_path}}>查看报告</a></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+    </table>
+	<ul class="pager">
+	    {% if reports.has_previous %}
+		<li><button type="button" class="btn btn-primary btn-xs" id= "pre" title={{ reports.previous_page_number }}>上一页</button></li>
+        {% endif %}
+	    <label>{{ reports.number }} / {{ reports.paginator.num_pages }} 页</label>
+        {% if reports.has_next %}
+		<li><button type="button" class="btn btn-primary btn-xs" id= "next" title={{ reports.next_page_number }}>下一页</button></li>    
+        {% endif %}          
+    </ul>
+</div>
