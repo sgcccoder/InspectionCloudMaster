@@ -17,19 +17,26 @@ from InspectionCloudMaster import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from master.views import upload_report, success, search, result, upload, \
-    upload_testcase, post_testcase, upload_testcase_success
+from master import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-#    url(r'^downloadreport/', download_report),
-#    url(r'admin/index.html', index),
-    url(r'^upload/$', upload),
-    url(r'^uploadreport/$', upload_report),
-    url(r'^success/$', success),
-    url(r'^result/$', result),
-    url(r'^search/', search, name='search'),
-    url(r'^uploadtestcase/', upload_testcase),
-    url(r'^posttestcase/', post_testcase),
-    url(r'^uploadtestcasesuccess/', upload_testcase_success),
+    url(r'^upload/$', views.upload),
+    url(r'^uploadreport/$',  views.upload_report),
+    url(r'^success/$',  views.success),
+    url(r'^result/$',  views.result),
+    url(r'^search/',  views.search, name='search'),
+    url(r'^addtestcase/',  views.add_testcase),
+    url(r'^createtestcase/',  views.create_testcase),
+    url(r'^createtestcasesuccess/',  views.create_testcase_success),
+    url(r'^plans/',  views.plan_list),
+    url(r'^testsuites/',  views.testsuite_list),
+    url(r'^testcases/',  views.testcase_list),
+    url(r'^home/',  views.home), 
+    url(r'^selectsystem/',  views.select_system),   
+    url(r'^addtestsuite/',  views.add_testsuite),
+    url(r'^createtestsuite/',  views.create_testsuite),
+     url(r'^createtestsuitesuccess/',  views.create_testsuite_success),
+    url(r'^/testcase/(?P<testcase_id>[0-9]+)/$', views.testcase_detail, name="testcasedetail"),
+    url(r'^/testsuite/(?P<testsuite_id>[0-9]+)/$', views.testsuite_detail, name="testsuitedetail"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

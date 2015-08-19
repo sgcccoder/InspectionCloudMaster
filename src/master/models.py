@@ -19,10 +19,11 @@ class TestCase(models.Model):
     system = models.ForeignKey(System)
     name = models.CharField(u'测试用例名称',  max_length=100)
     content = models.TextField(u'测试用例')
-        
+    
 class TestSuite(models.Model):
-    test_case = models.ForeignKey(TestCase)
-    suite_name = models.CharField(u'测试套件名称',  max_length=100)
+    system = models.ForeignKey(System)
+    name = models.CharField(u'测试套件名称', max_length=100)
+    testcases = models.ManyToManyField(TestCase)
 
 class Task(models.Model):
     test_suite = models.ForeignKey(TestSuite)

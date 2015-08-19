@@ -1,0 +1,57 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta charset="utf-8">
+		<meta name="author" content="zyl">
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/> 
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.cs' %}"/>
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/cover.css' %}"/>
+		
+		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js"></script>
+		<script src= "{% static 'master/js/moment.js' %}"></script>
+		<script src= "{% static 'master/js/pikaday.js' %}"></script>
+		<script src= "{% static 'master/js/distpicker.data.js' %}"></script>
+		<script src= "{% static 'master/js/distpicker.js' %}"></script>
+    </head>
+	
+	<body>
+    <div class="site-wrapper">
+
+      <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+<!--
+          <div class="masthead clearfix">
+            <div class="inner">
+              <h3 class="masthead-brand">Cover</h3>
+              <nav>
+                <ul class="nav masthead-nav">
+                  <li class="active"><a href="#">Home</a></li>
+                  <li><a href="#">Features</a></li>
+                  <li><a href="#">Contact</a></li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+-->
+          <div class="inner cover">
+            <h1 class="cover-heading">应用巡检云服务平台</h1>
+			<a href="../result" id="manager"class="btn btn-lg btn-default">管理人员</a>
+			<a href="../selectsystem" id="executor" class="btn btn-lg btn-default">巡检人员</a>
+          </div>
+
+          <div class="mastfoot">
+            <div class="inner">
+              <p>国家电网公司信息通信分公司</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </body>
+</html>

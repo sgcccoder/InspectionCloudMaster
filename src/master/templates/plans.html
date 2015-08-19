@@ -1,0 +1,82 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta charset="utf-8">
+		<meta name="author" content="zyl">
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/> 
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.cs' %}"/>
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/pikaday.css' %}"/>
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/my.css' %}"/>
+		
+		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js"></script>
+		<script src= "{% static 'master/js/moment.js' %}"></script>
+		<script src= "{% static 'master/js/pikaday.js' %}"></script>
+		<script src= "{% static 'master/js/distpicker.data.js' %}"></script>
+		<script src= "{% static 'master/js/distpicker.js' %}"></script>
+    </head>
+    <body>
+		<title>巡检计划</title>
+		<!-- Fixed navbar -->
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+		    <div class="container">
+				<div id="navbar" class="navbar-collapse collapse">
+				  <ul class="nav navbar-nav">
+				    <li class="active">
+						<a href="/plans">巡检计划</a>
+					</li>
+					<li >
+						<a href="/testsuites">测试套件</a>
+					</li>
+					<li >
+						<a href="/testcases">测试用例</a>
+					</li>
+				  </ul>
+				</div><!--/.nav-collapse -->
+		    </div>
+		</nav>
+		<div class="first">
+		</div>
+		<div class="col-md-offset-2 col-md-2">
+			<a class="btn btn-primary" href="/addplan" >增加巡检计划</a>
+		</div>	
+		<div class="page-header">
+			<h3>巡检计划列表</h3>
+		</div>		
+		<div id="planlist">
+		<table class="table">
+		<thead>
+			<tr>
+				<th>巡检人</th>
+				<th>省份</th>
+				<th>城市</th>
+				<th>测试套件名称</th>
+				<th>时间计划</th>
+			</tr>
+		</thead>  
+		<tbody>
+			{% for plan in plans %}
+			<tr>
+				<td>{{plan.task.executor}}</td>
+				<td>{{plan.task.province}}</td>
+				<td>{{plan.task.city}}</td>
+				<td>{{plan.task.test_suite.name}}</td>
+				<td>{{plan.exec_param}}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+    </table>
+	<ul class="pager">
+	    {% if plans.has_previous %}
+		<li><button type="button" class="btn btn-primary btn-xs" id= "pre" title={{ reports.previous_page_number }}>上一页</button></li>
+        {% endif %}
+	    <label>{{ plans.number }} / {{ plans.paginator.num_pages }} 页</label>
+        {% if plans.has_next %}
+		<li><button type="button" class="btn btn-primary btn-xs" id= "next" title={{ reports.next_page_number }}>下一页</button></li>    
+        {% endif %}          
+    </ul>
+</div>
+
+    </body>
+</html>

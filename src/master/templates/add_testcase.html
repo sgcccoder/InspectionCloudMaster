@@ -1,0 +1,68 @@
+﻿{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="author" content="zyl">
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/> 
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.css' %}"/>
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/my.css' %}"/>
+		
+		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
+    </head>
+	<body>
+		<title>新增测试用例</title>
+		<!-- Fixed navbar -->
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+		    <div class="container">
+				<div id="navbar" class="navbar-collapse collapse">
+				  <ul class="nav navbar-nav">
+				    <li>
+						<a href="/plans">巡检计划</a>
+					</li>
+					<li >
+						<a href="/testsuites">测试套件</a>
+					</li>
+					<li >
+						<a href="/testcases">测试用例</a>
+					</li>
+				  </ul>
+				</div><!--/.nav-collapse -->
+		    </div>
+		</nav>
+		<div class="first">
+		</div>
+		<div class="page-header">
+			<h3>新增测试用例</h3>
+		</div>			
+		<form class="form-horizontal"  method="POST" action="/createtestcase/">{% csrf_token %}
+			<div class="form-group">
+				<label for="name" class="col-md-2 control-label">测试用例名称</label>
+				<div class="col-md-10">
+					<input type="text" name="name" id="name"/>
+			    </div>
+			</div>
+			<div class="form-group">
+				<label for="content" class="col-md-2 control-label">测试用例</label>
+				<div class="col-md-10">
+					<textarea class="form-control" name="content" id="content"></textarea>
+			    </div>
+			</div>
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-10">
+					<button type="submit" class="btn btn-primary">完成</button>
+				</div>
+			</div>
+		</form>	
+<!--
+	{% for field in form %}
+    <div class="fieldWrapper">
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }}
+    </div>
+	{% endfor %}
+-->
+	
+	</body>
+</html>

@@ -1,4 +1,5 @@
 from django import forms
+from .models import TestCase
 
 class ReportForm(forms.Form):
     system = forms.CharField()
@@ -8,6 +9,9 @@ class ReportForm(forms.Form):
     zip = forms.FileField()
     
 class TestCaseForm(forms.Form):
-    system = forms.CharField()
     name = forms.CharField()
     content = forms.CharField(widget=forms.Textarea)
+
+class TestSuiteForm(forms.Form):
+    name = forms.CharField()
+    test_cases = forms.ModelMultipleChoiceField(queryset=TestCase.objects.all())   

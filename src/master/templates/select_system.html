@@ -11,13 +11,13 @@
 		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
     </head>
 	<body>
-		<title>提交测试用例</title>
+		<title>选择巡检系统</title>
 		<div class="page-header">
-			<h3>上传测试用例</h3>
+			<h3>选择巡检系统</h3>
 		</div>
-		<form class="form-horizontal"  method="POST" action="/posttestcase/">{% csrf_token %}
+		<form class="form-horizontal"  action="/plans/">
 			<div class="form-group">
-				<label for="system" class="col-md-2 control-label">系统</label>
+				<label for="system" class="col-md-2 control-label">系统名称</label>
 				<div class="col-md-10">
 					<select name="system" id="system">
 						<option value="" selected>—— 系统 ——</option>
@@ -28,20 +28,8 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="name" class="col-md-2 control-label">测试用例名称</label>
-				<div class="col-md-10">
-					<input type="text" name="name" id="name"/>
-			    </div>
-			</div>
-			<div class="form-group">
-				<label for="content" class="col-md-2 control-label">测试用例</label>
-				<div class="col-md-10">
-					<textarea class="form-control" name="content" id="content"></textarea>
-			    </div>
-			</div>
-			<div class="form-group">
 				<div class="col-md-offset-2 col-md-10">
-					<button type="submit" class="btn btn-primary">上传</button>
+					<button type="submit" class="btn btn-primary">下一步</button>
 				</div>
 			</div>
 		</form>	

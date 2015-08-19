@@ -1,13 +1,13 @@
 #coding:utf-8
-from .forms import ReportForm, TestCaseForm
-from .models import Report, System, TestCase
+from .forms import ReportForm, TestCaseForm, TestSuiteForm
+from .models import Report, System, TestCase, Plan, Task, TestSuite
 from InspectionCloudMaster.settings import MEDIA_ROOT, BASE_DIR
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import F
 from django.http.response import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
@@ -22,7 +22,7 @@ import zipfile
 # Create your views here.
 
 #每页展示的报告数目
-REPORT_PER_PAGE = 50;
+REPORT_PER_PAGE = 50
 LOG_ROOT = 'D:\\autoInspectionLog'
 
 current = time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
@@ -32,6 +32,12 @@ logging.basicConfig(level=logging.INFO,
             filename =  LOG_ROOT + os.path.sep + current + '.log',
             filemode='w')
 logger = logging.getLogger('Main')
+
+def home(request):
+    logger.info('访问主页')
+    t = get_template('home.html')
+    html = t.render(Context())
+    return HttpResponse(html)
     
 def upload(request):
     t = get_template('upload.html')
@@ -161,59 +167,152 @@ def search(request):
     return render_to_response('report_list_div.html', {"reports": reports})
     logger.info('分页')
     
-def upload_testcase(request):
+def add_testcase(request):
     '''
-          上传测试用例界面
+          新增测试用例界面
     '''
-    systems = System.objects.all()
-    return render_to_response('upload_testcase.html', {'systems': systems}, context_instance=RequestContext(request))
+    t = get_template('add_testcase.html')
+    html = t.render(Context())
+    return HttpResponse(html)  
 
 @csrf_exempt
-def post_testcase(request):
+def create_testcase(request):
     '''
-          完成测试用例上传工作
+          完成测试用例新增工作
     '''
-    systems = System.objects.all()
     if request.method == 'POST':
         form = TestCaseForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            q_system = systems.filter(name=data['system'])
-            system_instance = q_system[0]
-            instance = TestCase(system = system_instance, name = data['name'], content = data['content'])
+            cur_system =  request.COOKIES["system"]
+            cur_system_instance = System.objects.get(name=cur_system)
+            instance = TestCase(system = cur_system_instance, name = data['name'], content = data['content'])
             instance.save()
             logger.info('测试用例已存入数据库')
-            return HttpResponseRedirect('/uploadtestcasesuccess/')
+            return HttpResponseRedirect('/createtestcasesuccess/')
     else:
         form = TestCaseForm()
    
-    return render_to_response('upload_testcase.html', {'form': form})
+    return render_to_response('add_testcase.html', {'form': form})
 
-#def handle_uploaded_testcase_file(f, system, name):
-#    '''
-#         上传的测试用例文件存入服务器，根据测试用例名称进行重命名，文件存储位置为testcase/系统名称/
-#    f表示提交的测试用例文件
-#    system表示测试的系统名称
-#    '''
-#    test_case_path = ""
-#        #在服务器上创建路径存储测试用例
-#    try:
-#        #存储测试用例的目录
-#        dir = TEST_CASE_ROOT + os.path.sep + system 
-#        if not os.path.exists(dir):
-#            os.makedirs(dir)
-#        test_case_path = dir + os.path.sep + name + '.txt'    
-#        file = open(test_case_path, 'wb+')
-#        for chunk in f.chunks():
-#            file.write(chunk)
-#        file.close()
-#        logger.info('测试用例文件上传到服务器：' + dir)
-#    except Exception, e:
-#        logger.error(e)
-#    #返回测试用例路径
-#    return test_case_path
 
-def upload_testcase_success(request):
-    t = get_template('upload_testcase_success.html')
+    
+
+
+def select_system(request):
+    systems = System.objects.all()
+    context = {'systems': systems}
+    t = get_template('select_system.html')
+    html = t.render(context)
+    return HttpResponse(html)
+   
+def create_testcase_success(request):
+    t = get_template('create_testcase_success.html')
     html = t.render(Context())
     return HttpResponse(html)  
+
+def plan_list(request):
+    logger.info('查看巡检计划')
+    q_system = ''
+    try:
+       q_system=request.REQUEST['system']
+    except:
+        q_system = request.COOKIES["system"]
+    cur_system_instance = System.objects.get(name=q_system)
+    tasks = Task.objects.filter(system=cur_system_instance)
+    plans = Plan.objects.filter(task__in=tasks)
+    context = {'plans': plans}
+    t = get_template('plans.html')
+    html = t.render(context)
+    response = HttpResponse(html)
+    response.set_cookie("system",q_system)
+    return response
+
+
+def testsuite_list(request):
+    '''
+            查看测试套件
+    '''
+    cur_system =  request.COOKIES["system"]
+    cur_system_instance = System.objects.get(name=cur_system)
+    testsuites = TestSuite.objects.filter(system=cur_system_instance)
+    t = get_template('testsuites.html')
+    context = {'testsuites': testsuites}
+    html = t.render(context)
+    return HttpResponse(html)
+
+def testsuite_detail(request, testsuite_id):
+    '''
+            测试套件详细信息
+    '''
+    testsuite = get_object_or_404(TestSuite, pk=testsuite_id)
+    t = get_template('testsuite_detail.html')
+    context = {'testsuite': testsuite}
+    html = t.render(context)
+    return HttpResponse(html)  
+
+
+def add_testsuite(request):
+    '''
+           添加测试套件界面
+    '''
+    cur_system =  request.COOKIES["system"]
+    cur_system_instance = System.objects.get(name=cur_system)
+    testcases = TestCase.objects.filter(system=cur_system_instance)
+    context = {'testcases': testcases}
+    t = get_template('add_testsuite.html')
+    html = t.render(context)
+    return HttpResponse(html)
+
+@csrf_exempt
+def create_testsuite(request):
+    '''
+          完成测试套件新增工作
+    '''
+    if request.method == 'POST':
+        form = TestSuiteForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            cur_system =  request.COOKIES["system"]
+            cur_system_instance = System.objects.get(name=cur_system)
+            instance = TestSuite(system = cur_system_instance, name = data['name'])
+            instance.save()
+            for testcase in data['test_cases']:
+                instance.testcases.add(testcase)
+            instance.save()
+            logger.info('测试套件已存入数据库')
+            return HttpResponseRedirect('/createtestsuitesuccess/')
+    else:
+        form = TestSuiteForm()
+    return render_to_response('add_testsuite.html', {'form': form})
+
+def create_testsuite_success(request):
+    t = get_template('create_testsuite_success.html')
+    html = t.render(Context())
+    return HttpResponse(html)  
+
+
+        
+
+    
+def testcase_list(request):
+    '''
+            查看测试用例列表
+    '''
+    cur_system =  request.COOKIES["system"]
+    cur_system_instance = System.objects.get(name=cur_system)
+    testcases = TestCase.objects.filter(system=cur_system_instance)
+    t = get_template('testcases.html')
+    context = {'testcases': testcases}
+    html = t.render(context)
+    return HttpResponse(html)
+
+def testcase_detail(request, testcase_id):
+    '''
+            查看测试用例列表
+    '''
+    testcase = get_object_or_404(TestCase, pk=testcase_id)
+    t = get_template('testcase_detail.html')
+    context = {'testcase': testcase}
+    html = t.render(context)
+    return HttpResponse(html)   

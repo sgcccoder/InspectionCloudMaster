@@ -34,3 +34,8 @@ tr.bad{
   margin-left: auto;  
   margin-right: auto;  
 }
+
+.first{
+ height:50px;
+ width : 100%;
+}
