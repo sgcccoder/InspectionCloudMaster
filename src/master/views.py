@@ -167,37 +167,6 @@ def search(request):
     return render_to_response('report_list_div.html', {"reports": reports})
     logger.info('分页')
     
-def add_testcase(request):
-    '''
-          新增测试用例界面
-    '''
-    t = get_template('add_testcase.html')
-    html = t.render(Context())
-    return HttpResponse(html)  
-
-@csrf_exempt
-def create_testcase(request):
-    '''
-          完成测试用例新增工作
-    '''
-    if request.method == 'POST':
-        form = TestCaseForm(request.POST)
-        if form.is_valid():
-            data = form.cleaned_data
-            cur_system =  request.COOKIES["system"]
-            cur_system_instance = System.objects.get(name=cur_system)
-            instance = TestCase(system = cur_system_instance, name = data['name'], content = data['content'])
-            instance.save()
-            logger.info('测试用例已存入数据库')
-            return HttpResponseRedirect('/createtestcasesuccess/')
-    else:
-        form = TestCaseForm()
-   
-    return render_to_response('add_testcase.html', {'form': form})
-
-
-    
-
 
 def select_system(request):
     systems = System.objects.all()
@@ -294,7 +263,7 @@ def create_testsuite(request):
             data = form.cleaned_data
             cur_system =  request.COOKIES["system"]
             cur_system_instance = System.objects.get(name=cur_system)
-            instance = TestSuite(system = cur_system_instance, name = data['name'])
+            instance = TestSuite(system = cur_system_instance, name = data['name'],description = data['description'])
             instance.save()
             for testcase in data['test_cases']:
                 instance.testcases.add(testcase)
@@ -334,4 +303,32 @@ def testcase_detail(request, testcase_id):
     t = get_template('testcase_detail.html')
     context = {'testcase': testcase}
     html = t.render(context)
-    return HttpResponse(html)   
+    return HttpResponse(html)
+
+def add_testcase(request):
+    '''
+          新增测试用例界面
+    '''
+    t = get_template('add_testcase.html')
+    html = t.render(Context())
+    return HttpResponse(html)  
+
+@csrf_exempt
+def create_testcase(request):
+    '''
+          完成测试用例新增工作
+    '''
+    if request.method == 'POST':
+        form = TestCaseForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            cur_system =  request.COOKIES["system"]
+            cur_system_instance = System.objects.get(name=cur_system)
+            instance = TestCase(system = cur_system_instance, name = data['name'], content = data['content'], description = data['description'])
+            instance.save()
+            logger.info('测试用例已存入数据库')
+            return HttpResponseRedirect('/createtestcasesuccess/')
+    else:
+        form = TestCaseForm()
+   
+    return render_to_response('add_testcase.html', {'form': form})

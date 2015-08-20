@@ -19,11 +19,13 @@ class TestCase(models.Model):
     system = models.ForeignKey(System)
     name = models.CharField(u'测试用例名称',  max_length=100)
     content = models.TextField(u'测试用例')
+    description = models.TextField(u'测试用例描述')
     
 class TestSuite(models.Model):
     system = models.ForeignKey(System)
     name = models.CharField(u'测试套件名称', max_length=100)
     testcases = models.ManyToManyField(TestCase)
+    description = models.TextField(u'测试套件描述')
 
 class Task(models.Model):
     test_suite = models.ForeignKey(TestSuite)
@@ -34,7 +36,8 @@ class Task(models.Model):
     
 class Plan(models.Model):
     task = models.ForeignKey(Task)
-    exec_param = models.CharField(u'执行参数', max_length=800)
+    exec_time = models.TimeField()
+    repeat_type = models.IntegerField()#以7位二进制数反映重复类型
 
     
     

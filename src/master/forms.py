@@ -11,7 +11,9 @@ class ReportForm(forms.Form):
 class TestCaseForm(forms.Form):
     name = forms.CharField()
     content = forms.CharField(widget=forms.Textarea)
+    description = forms.CharField(required=False, widget=forms.Textarea)
 
 class TestSuiteForm(forms.Form):
     name = forms.CharField()
-    test_cases = forms.ModelMultipleChoiceField(queryset=TestCase.objects.all())   
+    test_cases = forms.ModelMultipleChoiceField(queryset=TestCase.objects.all())
+    description = forms.CharField(required=False, widget=forms.Textarea)   
