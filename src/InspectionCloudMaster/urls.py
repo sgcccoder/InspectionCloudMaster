@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^createtestcase/',  views.create_testcase),
     url(r'^createtestcasesuccess/',  views.create_testcase_success),
     url(r'^plans/',  views.plan_list),
+     url(r'^addplan/',  views.add_plan),
     url(r'^testsuites/',  views.testsuite_list),
     url(r'^testcases/',  views.testcase_list),
     url(r'^home/',  views.home), 

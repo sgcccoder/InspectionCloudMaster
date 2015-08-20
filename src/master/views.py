@@ -228,6 +228,25 @@ def plan_list(request):
     response.set_cookie("system",q_system)
     return response
 
+def add_plan(request):
+    '''
+           添加巡检计划界面
+    '''
+    logger.info('增加巡检计划')
+    cur_system =  request.COOKIES["system"]
+    cur_system_instance = System.objects.get(name=cur_system)
+    testsuites = TestSuite.objects.filter(system=cur_system_instance)
+    hours = range(1,24)
+    minutes = range(1, 60)
+    context = {'testsuites': testsuites,
+               'hours' : hours,
+                'minutes' : minutes,
+               }
+    t = get_template('add_plan.html')
+    html = t.render(context)
+    return HttpResponse(html)    
+    
+
 
 def testsuite_list(request):
     '''
