@@ -1,5 +1,5 @@
 #coding:utf-8
-from .forms import ReportForm, TestCaseForm, TestSuiteForm
+from .forms import ReportForm, TestCaseForm, TestSuiteForm, PlanForm
 from .models import Report, System, TestCase, Plan, Task, TestSuite
 from InspectionCloudMaster.settings import MEDIA_ROOT, BASE_DIR
 from django.contrib import messages
@@ -214,8 +214,48 @@ def add_plan(request):
     t = get_template('add_plan.html')
     html = t.render(context)
     return HttpResponse(html)    
-    
+ 
+@csrf_exempt
+def create_plan(request):
+    '''
+          完成巡检计划新增工作
+    '''
+    if request.method == 'POST':
+        form = PlanForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            cur_system =  request.COOKIES["system"]         
+            cur_system_instance = System.objects.get(name=cur_system)
+            testsuite_instance = TestSuite.objects.get(name=data['test_suite_name'])
+            task_instance = Task(test_suite = testsuite_instance, 
+                                 executor = data['executor'], 
+                                 system = cur_system_instance, 
+                                 province = data['province'], 
+                                 city = data['city'])
+            task_instance.save()
+            logger.info('巡检任务已存入数据库')
+            exec_time = datetime.time(int(data['hour']), int(data['minute']))
+            #用7位二进制数表示重复类型，例如每周一至周五运行，对应的二进制数为（0011111），对应的10进制数为31                       
+            
+            repeat_type = 0
+            for item in data['repeat_type']:#data['repeat_type']的类型是字符型，范围为1~7
+                i = int(item) - 1 #转换为整形，然后将范围调整为0~6
+                repeat_type += 2**i                                 
+            plan_instance = Plan(task = task_instance, exec_time = exec_time, repeat_type = repeat_type)        
+            plan_instance.save()       
+            logger.info('巡检计划已存入数据库')
+            return HttpResponseRedirect('/createplansuccess/')
+    else:
+        form = PlanForm()
+    return render_to_response('add_plan.html', {'form': form})
 
+def create_plan_success(request):
+    '''
+          创建计划成功界面
+    '''
+    t = get_template('create_plan_success.html')
+    html = t.render(Context())
+    return HttpResponse(html) 
 
 def testsuite_list(request):
     '''

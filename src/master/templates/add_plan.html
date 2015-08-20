@@ -41,14 +41,14 @@
 		<div class="page-header">
 			<h3>增加巡检计划</h3>
 		</div>
-		<form class="form-horizontal"  method="POST" action="/creaplan/">{% csrf_token %}
+		<form class="form-horizontal"  method="POST" action="/createplan/">
 			<div class="form-group">
-				<label for="testsuite" class="col-md-1 control-label">测试套件</label>
+				<label for="test_suite_name" class="col-md-1 control-label">测试套件</label>
 				<div class="col-md-2">
-					<select id="testsuite" >
+					<select name="test_suite_name" id="test_suite_name" >
 						<option value="" selected>—— 测试套件——</option>
 						{% for testsuite in testsuites %}
-						<option value={{testsuite}}>{{testsuite.name}}</option>
+						<option value={{testsuite.name}}>{{testsuite.name}}</option>
 						{% endfor %}
 					</select>
 				</div>
@@ -56,28 +56,28 @@
 			<div class="form-group">
 				<label for="executor" class="col-md-1 control-label">巡检人姓名</label>
 				<div class="col-md-2">
-					<input type="text" id="executor" >
+					<input type="text"  name="executor" id="executor" >
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="col-md-1 control-label">地区</label>
 				<div class="col-md-4">
 					<div class="distpicker1">
-						<select id="province"></select>
-						<select id="city"></select>
+						<select name="province" id="province"></select>
+						<select name="city" id="city"></select>
 					</div> 
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="col-md-1 control-label">巡检时间</label>
 				<div class="col-md-2">
-					<select id="hour" >
+					<select name="hour" id="hour" >
 						<option value="0" selected>0</option>
 						{% for hour in hours %}
 						<option value={{hour}}>{{hour}}</option>
 						{% endfor %}
 					</select>:
-					<select id="minute" >
+					<select name="minute" id="minute" >
 						<option value="0" selected>0</option>
 						{% for minute in minutes %}
 						<option value={{minute}}>{{minute}}</option>
@@ -88,31 +88,31 @@
 			<div class="form-group">
 			    <label class="col-md-1 control-label">重复类型</label>			
 				<label>
-					<input type="checkbox" name="week" value="1"/>
+					<input type="checkbox" name="repeat_type" value="1"/>
 					每周一
 				</label>
 				<label>
-					<input type="checkbox" name="week" value="2"/>
+					<input type="checkbox" name="repeat_type" value="2"/>
 					每周二
 				</label>
 				<label>
-					<input type="checkbox" name="week" value="3"/>
+					<input type="checkbox" name="repeat_type" value="3"/>
 					每周三
 				</label>
 				<label>
-					<input type="checkbox" name="week" value="4"/>
+					<input type="checkbox" name="repeat_type" value="4"/>
 					每周四
 				</label>
 				<label>
-					<input type="checkbox" name="week" value="5"/>
+					<input type="checkbox" name="repeat_type" value="5"/>
 					每周五
 				</label>
 				<label>
-					<input type="checkbox" name="week" value="6"/>
+					<input type="checkbox" name="repeat_type" value="6"/>
 					每周六
 				</label>
 				<label>
-					<input type="checkbox" name="week" value="7"/>
+					<input type="checkbox" name="repeat_type" value="7"/>
 					每周日
 				</label>			
 			</div>
@@ -121,7 +121,14 @@
 				</div> 			
 			</div>			 
 		</form>
-	
+
+	{% for field in form %}
+    <div class="fieldWrapper">
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }}
+    </div>
+	{% endfor %}
+
 		<script type="text/javascript">
 			//初始化地区选择
 			$(".distpicker1").distpicker({
