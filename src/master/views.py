@@ -23,29 +23,48 @@ import zipfile
 
 #每页展示的报告数目
 REPORT_PER_PAGE = 50
+
+#日志根目录
 LOG_ROOT = 'D:\\autoInspectionLog'
 
+#当前时间
 current = time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
+
+#配置日志
 logging.basicConfig(level=logging.INFO,
             format='%(asctime)s:%(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
             datefmt='%a, %d %b %Y %H:%M:%S',
             filename =  LOG_ROOT + os.path.sep + current + '.log',
             filemode='w')
+
 logger = logging.getLogger('Main')
 
+#巡检脚本名称和巡检脚本文件之间的一一映射关系
+scripts= {}
+
+#超时时间，单位是秒
+timeout = 60
+
 def home(request):
+    '''
+           应用巡检云服务的主页
+    '''
     logger.info('访问主页')
     t = get_template('home.html')
     html = t.render(Context())
     return HttpResponse(html)
     
 def upload(request):
+    '''
+         上传巡检报告的页面
+    '''
     t = get_template('upload.html')
     html = t.render(Context())
     return HttpResponse(html)
 
 def handle_uploaded_file(f, system, province, reporter):
     '''
+            处理巡检人员提交的巡检报告文件
     f表示提交的报告压缩文件
     system表示巡检的系统
     province表示所在的省
@@ -88,6 +107,9 @@ def handle_uploaded_file(f, system, province, reporter):
 
 @csrf_exempt
 def upload_report(request):
+    '''
+            完成巡检报告上传工作
+    '''    
       
     if request.method == 'POST':
         form = ReportForm(request.POST, request.FILES)
@@ -95,9 +117,12 @@ def upload_report(request):
             data = form.cleaned_data
             report_info = '报告人：' + data['reporter'] + '， 系统：' + data['system'] + '， 省：' + data['province'] + '， 市：' + data['city'] 
             logger.info(report_info)
+            #获得巡检报告在服务端的存储路径，测试功能点数目，通过的数目
             report_path, total_num, pass_num = handle_uploaded_file(request.FILES['zip'], data['system'], data['province'], data['reporter'])
+            #获得访问巡检报告文件的url
             report_url = default_storage.url(report_path)
             logger.info('总测试数目：' + str(total_num)  + '  通过测试的数目：' + str(pass_num))
+            #创建巡检报告实例
             instance = Report(reporter = data['reporter'], system = data['system'], province = data['province'], city = data['city'], total_num = total_num, pass_num = pass_num, report_path = report_url)
             instance.save()
             logger.info('报告存入数据库')
@@ -107,11 +132,17 @@ def upload_report(request):
     return render_to_response('upload.html', {'form': form})
 
 def success(request):
+    '''
+           巡检报告提交成功的页面
+    '''
     t = get_template('success.html')
     html = t.render(Context())
     return HttpResponse(html)   
 
 def result(request):
+    '''
+           巡检报告展示的页面
+    '''    
     logger.info('查看巡检结果')
     t = get_template('result.html')
     systems = System.objects.all()
@@ -120,6 +151,9 @@ def result(request):
     return HttpResponse(html) 
 
 def search(request):
+    '''
+           查询巡检报告
+    '''      
     q_system = request.REQUEST['system']
     q_reporter = request.REQUEST['reporter']
     q_province = request.REQUEST['province']
@@ -169,6 +203,9 @@ def search(request):
     
 
 def select_system(request):
+    '''
+           系统选择页面
+    '''  
     systems = System.objects.all()
     context = {'systems': systems}
     t = get_template('select_system.html')
@@ -176,11 +213,17 @@ def select_system(request):
     return HttpResponse(html)
    
 def create_testcase_success(request):
+    '''
+           测试用例创建成功的提示页面
+    '''  
     t = get_template('create_testcase_success.html')
     html = t.render(Context())
     return HttpResponse(html)  
 
 def plan_list(request):
+    '''
+           巡检计划的展示页面
+    '''  
     logger.info('查看巡检计划')
     q_system = ''
     try:
@@ -227,6 +270,26 @@ def create_plan(request):
             cur_system =  request.COOKIES["system"]         
             cur_system_instance = System.objects.get(name=cur_system)
             testsuite_instance = TestSuite.objects.get(name=data['test_suite_name'])
+
+            #巡检脚本名称(通过系统实例id和测试套件id保证巡检脚本名称的唯一性)
+            script_name = 'system' + str(cur_system_instance.id) + 'suite' + str(testsuite_instance.id)
+            #巡检脚本路径
+            script_path = settings.SCRIPT_ROOT + script_name + '.txt'
+            logger.info('巡检脚本路径：' + script_path)
+            if script_name not in scripts:
+                logger.info('新建巡检脚本')
+                script_str = '*** Settings ***' + os.linesep + 'Library           Selenium2Library' \
+                + os.linesep + 'Library           killIEDriverServer.py'  + os.linesep  + os.linesep\
+                + '*** Variables ***' + os.linesep + '${timeout}           ' + str(timeout) + os.linesep + os.linesep\
+                + '*** Test Cases ***' + os.linesep
+                for testcase in testsuite_instance.testcases.all():
+                    script_str = script_str + testcase.name + os.linesep
+                    script_str = script_str + testcase.content + os.linesep
+                    f = open(script_path, 'w')
+                    f.write(script_str)
+                    f.close()
+                scripts[script_name] = script_path
+                
             task_instance = Task(test_suite = testsuite_instance, 
                                  executor = data['executor'], 
                                  system = cur_system_instance, 
@@ -235,15 +298,17 @@ def create_plan(request):
             task_instance.save()
             logger.info('巡检任务已存入数据库')
             exec_time = datetime.time(int(data['hour']), int(data['minute']))
+
             #用7位二进制数表示重复类型，例如每周一至周五运行，对应的二进制数为（0011111），对应的10进制数为31                       
-            
             repeat_type = 0
             for item in data['repeat_type']:#data['repeat_type']的类型是字符型，范围为1~7
                 i = int(item) - 1 #转换为整形，然后将范围调整为0~6
-                repeat_type += 2**i                                 
+                repeat_type += 2**i
+            #创建巡检计划实例                               
             plan_instance = Plan(task = task_instance, exec_time = exec_time, repeat_type = repeat_type)        
             plan_instance.save()       
             logger.info('巡检计划已存入数据库')
+            
             return HttpResponseRedirect('/createplansuccess/')
     else:
         form = PlanForm()
@@ -315,14 +380,13 @@ def create_testsuite(request):
     return render_to_response('add_testsuite.html', {'form': form})
 
 def create_testsuite_success(request):
+    '''
+          测试套件创建成功的页面
+    '''  
     t = get_template('create_testsuite_success.html')
     html = t.render(Context())
     return HttpResponse(html)  
 
-
-        
-
-    
 def testcase_list(request):
     '''
             查看测试用例列表
@@ -337,7 +401,7 @@ def testcase_list(request):
 
 def testcase_detail(request, testcase_id):
     '''
-            查看测试用例列表
+            查看测试用例详细信息
     '''
     testcase = get_object_or_404(TestCase, pk=testcase_id)
     t = get_template('testcase_detail.html')
