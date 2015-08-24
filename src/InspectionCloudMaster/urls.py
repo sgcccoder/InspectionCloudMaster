@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^success/$',  views.success),   
     url(r'^search/',  views.search, name='search'),
     url(r'^selectsystem/',  views.select_system),
+    url(r'^export/',  views.export),
     
     url(r'^plans/',  views.plan_list),
     url(r'^addplan/',  views.add_plan),

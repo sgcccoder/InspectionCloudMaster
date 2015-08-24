@@ -1,7 +1,7 @@
 #coding:utf-8
 from .forms import ReportForm, TestCaseForm, TestSuiteForm, PlanForm
 from .models import Report, System, TestCase, Plan, Task, TestSuite
-from InspectionCloudMaster.settings import MEDIA_ROOT, BASE_DIR
+from InspectionCloudMaster import settings
 from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -54,7 +54,7 @@ def handle_uploaded_file(f, system, province, reporter):
     report_path = ""
         #在服务器上创建路径存储巡检人员提交的报告
     try:
-        path = MEDIA_ROOT + system + os.path.sep + province + os.path.sep + reporter + time.strftime('\\%Y\\%m\\%d\\%H%M%S\\')
+        path = settings.MEDIA_ROOT + system + os.path.sep + province + os.path.sep + reporter + time.strftime('\\%Y\\%m\\%d\\%H%M%S\\')
         if not os.path.exists(path):
             os.makedirs(path)
         zip_file = open('report.zip', 'wb+')
@@ -72,7 +72,7 @@ def handle_uploaded_file(f, system, province, reporter):
             if filename == 'report.html':
                 logger.info('找到report.html')
                 report_path = os.path.join(path, filename)
-                report_path = report_path.replace(MEDIA_ROOT, '')
+                report_path = report_path.replace(settings.MEDIA_ROOT, '')
                 #抽取通过测试的数目和未通过的数目
                 pattern = re.compile(r'"fail":\d+,"label":"All Tests","pass":\d+')
                 match = pattern.search(data)
@@ -372,3 +372,19 @@ def create_testcase(request):
         form = TestCaseForm()
    
     return render_to_response('add_testcase.html', {'form': form})
+
+def export(request):
+    '''
+         导出巡检报告
+    '''
+    response = HttpResponse(content_type='text/plain')                                   
+    response['Content-Disposition'] = 'attachment; filename=data.txt'
+    report_list = Report.objects.all()
+    logger.info('获得所有报告')
+    for report in report_list:
+        response.write(report.reporter + ' ' + report.system + ' '
+                       + report.province + ' ' + report.city + ' '
+                       + report.sub_time.strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(report.total_num) + ' '
+                       + str(report.pass_num) + os.linesep
+                       )
+    return response
