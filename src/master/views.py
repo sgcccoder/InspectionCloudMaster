@@ -272,22 +272,35 @@ def create_plan(request):
             cur_system =  request.COOKIES["system"]         
             cur_system_instance = System.objects.get(name=cur_system)
             testsuite_instance = TestSuite.objects.get(name=data['test_suite_name'])
-
             #巡检脚本名称(通过系统实例id和测试套件id保证巡检脚本名称的唯一性)
             script_name = str(cur_system_instance.id) + '-' + str(testsuite_instance.id)
             #巡检脚本路径
             script_path = settings.SCRIPT_ROOT + cur_system_instance.english_name + str(testsuite_instance.id) + '.txt'
             logger.info(u'巡检脚本路径：' + script_path)
+           
             if script_name not in scripts:
                 logger.info('新建巡检脚本')
+                
                 script_str = '*** Settings ***' + os.linesep + 'Library           Selenium2Library' \
                 + os.linesep + 'Library           killIEDriverServer.py'  + os.linesep  + os.linesep\
                 + '*** Variables ***' + os.linesep + '${timeout}           ' + str(timeout) + os.linesep + os.linesep\
-                + '*** Test Cases ***' + os.linesep
+                + '*** Test Cases ***' + os.linesep                
                 
-                for testcase in testsuite_instance.testcases.all():
-                    script_str = script_str + testcase.name + os.linesep
-                    script_str = script_str + testcase.content + os.linesep
+                #获得当前系统的所有测试用例
+                candidate_test_cases = TestCase.objects.filter(system = cur_system_instance)
+                #将testsuite选中的测试用例名称按行分为列表
+                testcase_list = testsuite_instance.testcases.split('\n')
+                #去除最后一个空行
+                testcase_list = testcase_list[:-1]
+                
+                for testcase_item in testcase_list:
+                    #列表中的每一项的格式为'序号 测试用例名称'
+                    testcase_name = testcase_item.split(' ')[1]
+                    #去除换行符
+                    testcase_name = testcase_name.strip('\r')
+                    testcase_instance = candidate_test_cases.get(name=testcase_name)
+                    script_str = script_str + testcase_instance.name + os.linesep
+                    script_str = script_str + testcase_instance.content + os.linesep
                 
                 script_str = script_str + '    delete all cookies' + os.linesep + \
                                    '    close browser' + os.linesep + \
@@ -305,6 +318,10 @@ def create_plan(request):
                                  city = data['city'])
             task_instance.save()
             logger.info('巡检任务已存入数据库')
+            
+            if data['exectype'] == 'now':
+                 return HttpResponseRedirect('/createplansuccess1/')
+                
             exec_time = datetime.time(int(data['hour']), int(data['minute']))
 
             #用7位二进制数表示重复类型，例如每周一至周五运行，对应的二进制数为（0011111），对应的10进制数为31                       
@@ -317,26 +334,34 @@ def create_plan(request):
             plan_instance.save()       
             logger.info('巡检计划已存入数据库')
             
-            #将系统名称等辅助信息转换为json格式
-            taskinfo = {}
-            taskinfo['system'] = cur_system
-            taskinfo['executor'] = data['executor']
-            taskinfo['province'] = data['province']
-            taskinfo['city'] = data['city']
-            taskinfo['script_path'] = script_path
-            taskinfo_json = json.dumps(taskinfo)
-            print taskinfo_json
+#            #将系统名称等辅助信息转换为json格式
+#            taskinfo = {}
+#            taskinfo['system'] = cur_system
+#            taskinfo['executor'] = data['executor']
+#            taskinfo['province'] = data['province']
+#            taskinfo['city'] = data['city']
+#            taskinfo['script_path'] = script_path
+#            taskinfo_json = json.dumps(taskinfo)
+#            print taskinfo_json
             
-            return HttpResponseRedirect('/createplansuccess/')
+            return HttpResponseRedirect('/createplansuccess2/')
     else:
         form = PlanForm()
     return render_to_response('add_plan.html', {'form': form})
 
-def create_plan_success(request):
+def create_plan_success1(request):
     '''
-          创建计划成功界面
+          创建单次任务成功界面
     '''
-    t = get_template('create_plan_success.html')
+    t = get_template('create_plan_success1.html')
+    html = t.render(Context())
+    return HttpResponse(html)
+
+def create_plan_success2(request):
+    '''
+          创建周期性计划成功界面
+    '''
+    t = get_template('create_plan_success2.html')
     html = t.render(Context())
     return HttpResponse(html) 
 
@@ -386,23 +411,7 @@ def create_testsuite(request):
             data = form.cleaned_data
             cur_system =  request.COOKIES["system"]
             cur_system_instance = System.objects.get(name=cur_system)
-            instance = TestSuite(system = cur_system_instance, name = data['name'],description = data['description'])
-            instance.save()
-            #获得当前系统的所有测试用例
-            candidate_test_cases = TestCase.objects.filter(system = cur_system_instance)
-            #获得textarea中的内容
-            testcases = data['testcases']
-            #按行分为列表
-            testcase_list = testcases.split('\n')
-            #去除最后一个空行
-            testcase_list = testcase_list[:-1]
-            for testcase_item in testcase_list:
-                #列表中的每一项的格式为'序号 测试用例名称'
-                testcase_name = testcase_item.split(' ')[1]
-                #去除换行符
-                testcase_name = testcase_name.strip('\r')
-                testcase_instance = candidate_test_cases.get(name=testcase_name)
-                instance.testcases.add(testcase_instance)
+            instance = TestSuite(system = cur_system_instance, name = data['name'], testcases=data['testcases'], description = data['description'])
             instance.save()
             logger.info('测试套件已存入数据库')
             return HttpResponseRedirect('/createtestsuitesuccess/')

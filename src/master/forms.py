@@ -36,8 +36,9 @@ class PlanForm(forms.Form):
     executor = forms.CharField()
     province =forms.CharField()
     city = forms.CharField()
-    hour = forms.CharField()
-    minute = forms.CharField()
+    exectype = forms.CharField()
+    hour = forms.CharField(required=False)
+    minute = forms.CharField(required=False)
     repeat_type = forms.MultipleChoiceField(required=False, 
                                     widget=CheckboxSelectMultiple(),
                                     choices=REPEAT_TYPE_CHOICES)

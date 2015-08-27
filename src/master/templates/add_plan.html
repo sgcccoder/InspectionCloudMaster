@@ -11,6 +11,8 @@
 		
 		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
 		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
+		<script src= "{% static 'master/js/distpicker.data.js' %}"></script>
+		<script src= "{% static 'master/js/distpicker.js' %}"></script>
     </head>
     <body>
 		<title>增加巡检计划</title>
@@ -89,6 +91,13 @@
 				</div>
 			</div>
 			<div class="form-group">
+				<label class="col-md-1 control-label">执行类型</label>
+				<div class="col-md-9">
+					  <label><input type="radio" name="exectype"  value="now" checked onclick="hide()">立即巡检</label>
+					  <label><input type="radio" name="exectype"  value="period" onclick="show()">周期巡检</label>
+				</div>
+			</div>
+			<div class="form-group" id="exectime" style="display:none;">
 				<label class="col-md-1 control-label">巡检时间</label>
 				<div class="col-md-2">
 					<select name="hour" id="hour" >
@@ -105,7 +114,7 @@
 					</select>				
 				</div>				
 			</div>
-			<div class="form-group">
+			<div class="form-group" id="repeattype" style="display:none;">
 			    <label class="col-md-1 control-label">重复类型</label>			
 				<label>
 					<input type="checkbox" name="repeat_type" value="1"/>
@@ -154,6 +163,18 @@
 			$(".distpicker1").distpicker({
 			autoSelect: false
 			});
+			
+			function show(){
+				document.getElementById("exectime").style="display:inline;"
+				document.getElementById("repeattype").style="display:inline;"
+			}
+
+			function hide(){
+				document.getElementById("exectime").style="display:none;"
+				document.getElementById("repeattype").style="display:none;"
+			}
+			
 	    </script>
+
     </body>
 </html>

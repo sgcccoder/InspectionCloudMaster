@@ -69,20 +69,14 @@
 			</div>
 			<div class="form-group">
 			    <label class="col-md-2 control-label">包含的测试用例</label>
-				<div class="col-md-10">
-					<ol>
-						{% for testcase in testsuite.testcases.all %}			
-						<li class="col-md-2">
-							<a href="{% url 'testcasedetail' testcase.id %}">{{testcase.name}}</a>
-						</li>
-						{% endfor %}
-					</ol>				
+				<div class="col-md-9">
+					<textarea class="form-control" name="testcases" id="testcases" rows="10">{{testsuite.testcases}}</textarea>			
 			    </div>				
 			</div>
 
 			<div class="form-group">
 				<label for="description" class="col-md-2 control-label">测试套件描述</label>
-				<div class="col-md-10">
+				<div class="col-md-9">
 					<textarea class="form-control" name="description" id="description" >{{testsuite.description}}</textarea>
 			    </div>
 			</div>

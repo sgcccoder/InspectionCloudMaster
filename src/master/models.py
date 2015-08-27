@@ -25,7 +25,7 @@ class TestCase(models.Model):
 class TestSuite(models.Model):
     system = models.ForeignKey(System)
     name = models.CharField(u'测试套件名称', max_length=100)
-    testcases = models.ManyToManyField(TestCase)
+    testcases = models.TextField(u'包含的测试套件')
     description = models.TextField(u'测试套件描述')
 
 class Task(models.Model):

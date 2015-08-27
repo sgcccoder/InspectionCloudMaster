@@ -33,7 +33,8 @@ urlpatterns = [
     url(r'^plans/',  views.plan_list),
     url(r'^addplan/',  views.add_plan),
     url(r'^createplan/',  views.create_plan),
-    url(r'^createplansuccess/',  views.create_plan_success),
+    url(r'^createplansuccess1/',  views.create_plan_success1),
+    url(r'^createplansuccess2/',  views.create_plan_success2),
     
     url(r'^testsuites/',  views.testsuite_list),
     url(r'^addtestsuite/',  views.add_testsuite),
