@@ -14,6 +14,7 @@ class Report(models.Model):
     
 class System(models.Model):
     name = models.CharField(u'系统',  max_length=100)
+    english_name = models.CharField(u'系统的英文名称', max_length=100)
 
 class TestCase(models.Model):
     system = models.ForeignKey(System)

@@ -18,7 +18,7 @@ class TestCaseForm(forms.Form):
 
 class TestSuiteForm(forms.Form):
     name = forms.CharField()
-    test_cases = forms.ModelMultipleChoiceField(queryset=TestCase.objects.all())
+    testcases = forms.CharField(widget=forms.Textarea)
     description = forms.CharField(required=False, widget=forms.Textarea) 
 
 REPEAT_TYPE_CHOICES = (

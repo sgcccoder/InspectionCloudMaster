@@ -10,11 +10,7 @@
 		<link rel="stylesheet" type="text/css" href="{% static 'master/css/my.css' %}"/>
 		
 		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
-		<script src= "{% static 'master/js/bootstrap.min.js"></script>
-		<script src= "{% static 'master/js/moment.js' %}"></script>
-		<script src= "{% static 'master/js/pikaday.js' %}"></script>
-		<script src= "{% static 'master/js/distpicker.data.js' %}"></script>
-		<script src= "{% static 'master/js/distpicker.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
     </head>
     <body>
 		<title>测试用例</title>
@@ -23,36 +19,57 @@
 		    <div class="container">
 				<div id="navbar" class="navbar-collapse collapse">
 				  <ul class="nav navbar-nav">
-				    <li >
-						<a href="/plans">巡检计划</a>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">巡检计划 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/plans">巡检计划列表</a>
+							</li>
+							<li>
+								<a href="/addplan">增加巡检计划</a>
+							</li>							
+						</ul>	
 					</li>
-					<li >
-						<a href="/testsuites">测试套件</a>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试套件 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/testsuites">测试套件列表</a>
+							</li>
+							<li>
+								<a href="/addtestsuite">增加测试套件</a>
+							</li>							
+						</ul>	
 					</li>
-					<li class="active">
-						<a href="/testcases">测试用例</a>
-					</li>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试用例 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/testcases">测试用例列表</a>
+							</li>
+							<li>
+								<a href="/addtestcase">增加测试用例</a>
+							</li>							
+						</ul>	
+					</li>					
 				  </ul>
 				</div><!--/.nav-collapse -->
 		    </div>
 		</nav>
+
 		<div class="first">
-		</div>
-		<div class="col-md-offset-2 col-md-2">
-			<a class="btn btn-primary" href="/addtestcase" >增加测试用例</a>
 		</div>
 		<div class="page-header">
 			<h3>测试用例列表</h3>
 		</div>	
 		<div id="testcaselist">
-			{% for testcase in testcases %}
-			<div class="col-md-2">
-				<a href="{% url 'testcasedetail' testcase.id %}">{{testcase.name}}</a>
-			</div>
+			<ol>
+				{% for testcase in testcases %}
+				<li class="col-md-2">
+					<a href="{% url 'testcasedetail' testcase.id %}">{{testcase.name}}</a>
+				</li>
 			{% endfor %}
-			</ul>
+			</ol>
 		</div>
-</div>
-
     </body>
 </html>

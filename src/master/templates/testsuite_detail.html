@@ -18,15 +18,39 @@
 		    <div class="container">
 				<div id="navbar" class="navbar-collapse collapse">
 				  <ul class="nav navbar-nav">
-				    <li >
-						<a href="/plans">巡检计划</a>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">巡检计划 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/plans">巡检计划列表</a>
+							</li>
+							<li>
+								<a href="/addplan">增加巡检计划</a>
+							</li>							
+						</ul>	
 					</li>
-					<li >
-						<a href="/testsuites">测试套件</a>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试套件 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/testsuites">测试套件列表</a>
+							</li>
+							<li>
+								<a href="/addtestsuite">增加测试套件</a>
+							</li>							
+						</ul>	
 					</li>
-					<li class="active">
-						<a href="/testcases">测试用例</a>
-					</li>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试用例 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/testcases">测试用例列表</a>
+							</li>
+							<li>
+								<a href="/addtestcase">增加测试用例</a>
+							</li>							
+						</ul>	
+					</li>					
 				  </ul>
 				</div><!--/.nav-collapse -->
 		    </div>
@@ -45,16 +69,19 @@
 			</div>
 			<div class="form-group">
 			    <label class="col-md-2 control-label">包含的测试用例</label>
-			    {% for testcase in testsuite.testcases.all %}			
-				<div class="col-md-2">
-					<label>
-						<a href="{% url 'testcasedetail' testcase.id %}">{{testcase.name}}</a>
-					</label>
-				</div>
-				{% endfor %}
+				<div class="col-md-10">
+					<ol>
+						{% for testcase in testsuite.testcases.all %}			
+						<li class="col-md-2">
+							<a href="{% url 'testcasedetail' testcase.id %}">{{testcase.name}}</a>
+						</li>
+						{% endfor %}
+					</ol>				
+			    </div>				
 			</div>
+
 			<div class="form-group">
-				<label for="description" class="col-md-2 control-label">测试用例描述</label>
+				<label for="description" class="col-md-2 control-label">测试套件描述</label>
 				<div class="col-md-10">
 					<textarea class="form-control" name="description" id="description" >{{testsuite.description}}</textarea>
 			    </div>

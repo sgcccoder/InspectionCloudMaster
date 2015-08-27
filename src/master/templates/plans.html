@@ -11,11 +11,7 @@
 		<link rel="stylesheet" type="text/css" href="{% static 'master/css/my.css' %}"/>
 		
 		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
-		<script src= "{% static 'master/js/bootstrap.min.js"></script>
-		<script src= "{% static 'master/js/moment.js' %}"></script>
-		<script src= "{% static 'master/js/pikaday.js' %}"></script>
-		<script src= "{% static 'master/js/distpicker.data.js' %}"></script>
-		<script src= "{% static 'master/js/distpicker.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
     </head>
     <body>
 		<title>巡检计划</title>
@@ -24,24 +20,45 @@
 		    <div class="container">
 				<div id="navbar" class="navbar-collapse collapse">
 				  <ul class="nav navbar-nav">
-				    <li class="active">
-						<a href="/plans">巡检计划</a>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">巡检计划 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/plans">巡检计划列表</a>
+							</li>
+							<li>
+								<a href="/addplan">增加巡检计划</a>
+							</li>							
+						</ul>	
 					</li>
-					<li >
-						<a href="/testsuites">测试套件</a>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试套件 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/testsuites">测试套件列表</a>
+							</li>
+							<li>
+								<a href="/addtestsuite">增加测试套件</a>
+							</li>							
+						</ul>	
 					</li>
-					<li >
-						<a href="/testcases">测试用例</a>
-					</li>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试用例 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/testcases">测试用例列表</a>
+							</li>
+							<li>
+								<a href="/addtestcase">增加测试用例</a>
+							</li>							
+						</ul>	
+					</li>					
 				  </ul>
 				</div><!--/.nav-collapse -->
 		    </div>
 		</nav>
 		<div class="first">
 		</div>
-		<div class="col-md-offset-2 col-md-2">
-			<a class="btn btn-primary" href="/addplan" >增加巡检计划</a>
-		</div>	
 		<div class="page-header">
 			<h3>巡检计划列表</h3>
 		</div>		
@@ -63,7 +80,7 @@
 					<td>{{plan.task.province}}</td>
 					<td>{{plan.task.city}}</td>
 					<td>
-						<a href="{% url 'testcasedetail' plan.task.test_suite.id %}">{{plan.task.test_suite.name}}</a>
+						<a href="{% url 'testsuitedetail' plan.task.test_suite.id %}">{{plan.task.test_suite.name}}</a>
 					</td>
 					<td>{{plan.exec_time|date:"H:i"}}</td>
 					<td>{{plan.repeat_type|display_repeat_type}}</td>
@@ -71,6 +88,7 @@
 				{% endfor %}
 			</tbody>
 		</table>
+<!--		
 		<ul class="pager">
 			{% if plans.has_previous %}
 			<li><button type="button" class="btn btn-primary btn-xs" id= "pre" title={{ reports.previous_page_number }}>上一页</button></li>
@@ -80,5 +98,6 @@
 			<li><button type="button" class="btn btn-primary btn-xs" id= "next" title={{ reports.next_page_number }}>下一页</button></li>    
 			{% endif %}          
 		</ul>
+-->		
     </body>
 </html>

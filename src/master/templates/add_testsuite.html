@@ -18,15 +18,39 @@
 		    <div class="container">
 				<div id="navbar" class="navbar-collapse collapse">
 				  <ul class="nav navbar-nav">
-				    <li >
-						<a href="/plans">巡检计划</a>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">巡检计划 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/plans">巡检计划列表</a>
+							</li>
+							<li>
+								<a href="/addplan">增加巡检计划</a>
+							</li>							
+						</ul>	
 					</li>
-					<li class="active">
-						<a href="/testsuites">测试套件</a>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试套件 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/testsuites">测试套件列表</a>
+							</li>
+							<li>
+								<a href="/addtestsuite">增加测试套件</a>
+							</li>							
+						</ul>	
 					</li>
-					<li >
-						<a href="/testcases">测试用例</a>
-					</li>
+				    <li class="dropdown">
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试用例 <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li>
+								<a href="/testcases">测试用例列表</a>
+							</li>
+							<li>
+								<a href="/addtestcase">增加测试用例</a>
+							</li>							
+						</ul>	
+					</li>					
 				  </ul>
 				</div><!--/.nav-collapse -->
 		    </div>
@@ -44,15 +68,21 @@
 			    </div>
 			</div>
 			<div class="form-group">
-			    <label class="col-md-2 control-label">可选测试用例</label>
-			    {% for testcase in testcases %}				
-				<div class="col-md-offset-2 col-md-10">
-					<label>
-						<input type="checkbox" name="test_cases" value="{{testcase.id}}"/>
-						{{testcase.name}}
-					</label>
-				</div>
-				{% endfor %}
+			    <label class="col-md-2 control-label">已选测试用例</label>			
+				<div class="col-md-3">
+					<textarea class="form-control" name="testcases" id="testcases" rows="10"></textarea>
+			    </div>
+				<div class="col-md-2">
+					<select name="testcase" id="testcase">
+						<option value="" selected>—— 可选测试用例 ——</option>
+						{% for testcase in testcases %}	
+						<option value={{testcase.name}} id={{testcase.name}} >{{testcase.name}}</option>
+						{% endfor %}
+					</select>
+			    </div>
+				<div class="col-md-2">
+					<button class="btn btn-primary" type="button" onclick="addtestcase()">添加</button>
+			    </div>				
 			</div>
 			<div class="form-group">
 				<label for="description" class="col-md-2 control-label">测试套件描述</label>
@@ -74,6 +104,32 @@
     </div>
 	{% endfor %}
 
+<script type="text/javascript">
+			//初始化测试用例编号
+			var test_case_order = 1;
+			
+			$( document ).ready( function() {
+				//初始化测试用例编号
+				window.test_case_order = 1;	
+				//清空已选择的测试用例
+				document.getElementById('testcases').value = ''
+			});
+			
+			function addtestcase(){
+			    var testcase = document.getElementById('testcase');
+			    //如果是无效选择不处理
+			    if (testcase.value == '')
+				{
+					return;
+				}
+
+				document.getElementById('testcases').value = document.getElementById('testcases').value + 
+					window.test_case_order + ' ' + testcase.value + '\n';
+				window.test_case_order += 1;
+				//从下拉框中删除已选的测试用例
+				testcase.remove(testcase.selectedIndex);
+			}
+	    </script>
 	
 	</body>
 </html>

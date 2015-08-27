@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^home/',  views.home),
     url(r'^result/$',  views.result),
     url(r'^upload/$', views.upload),
-    url(r'^uploadreport/$',  views.upload_report),
+    url(r'^uploadreport/',  views.upload_report),
     url(r'^success/$',  views.success),   
     url(r'^search/',  views.search, name='search'),
     url(r'^selectsystem/',  views.select_system),
