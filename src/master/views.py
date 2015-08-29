@@ -11,6 +11,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
+from master.cluster import Cluster
+from master.parser import Parser
 import codecs
 import datetime
 import json
@@ -46,6 +48,9 @@ scripts= {}
 
 #超时时间，单位是秒
 timeout = 60
+
+#集群对象
+cluster = Cluster()
 
 def home(request):
     '''
@@ -342,7 +347,7 @@ def create_plan(request):
 #            taskinfo['city'] = data['city']
 #            taskinfo['script_path'] = script_path
 #            taskinfo_json = json.dumps(taskinfo)
-#            print taskinfo_json
+             
             
             return HttpResponseRedirect('/createplansuccess2/')
     else:
@@ -485,15 +490,35 @@ def export(request):
     response['Content-Disposition'] = 'attachment; filename=data.txt'
     report_list = Report.objects.all()
     logger.info('获得所有报告')
+    parser = Parser(logger)
     i = 1
     seperator = '#'
     for report in report_list:
         pass_rate = float(report.pass_num) / float(report.total_num)
         str_pass_rate = str(int(pass_rate * 100)) + '%'
+        #获得巡检报告在服务器的目录
+        report_dir = settings.MEDIA_ROOT + report.system + os.path.sep + report.province + os.path.sep + report.reporter
+        time_str = os.path.dirname(report.report_path)[-17:]
+        time_str.replace('\\',os.path.sep)
+        report_dir = report_dir + os.path.sep + time_str
+        detail_info = parser.parse_outputxml(report_dir + os.path.sep + 'output.xml')
+        if detail_info == '':
+        #确少详细信息的记录不导出
+            continue
         response.write(str(i) + seperator + report.system + seperator \
                        + report.province + seperator + report.city + seperator \
                        + str(report.total_num) + seperator + str(report.pass_num) + seperator \
                        + str_pass_rate + seperator +  report.sub_time.strftime("%Y-%m-%d %H:%M:%S") \
-                       + seperator + report.reporter + seperator)
+                       + seperator + report.reporter + seperator + ' ' + seperator + ' ' + detail_info + seperator)
         i += 1
     return response
+
+def clusterStatus(request):
+    '''
+          集群状态显示界面
+    '''
+    t = get_template('cluster_status.html')
+    nodes = cluster.getStatus()
+    context = {'nodes': nodes}
+    html = t.render(context)
+    return HttpResponse(html)    

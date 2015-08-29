@@ -1,0 +1,58 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+    <head>
+		<meta charset="utf-8">
+		<meta name="author" content="zyl">
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/> 
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.cs' %}"/>
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/my.css' %}"/>
+		
+		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+		<title>集群状态监测平台</title>
+		<!-- Fixed navbar -->
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+		    <div class="container">
+				<div class="navbar-header">
+				  <a class="navbar-brand" href="#">集群状态监测平台</a>
+				</div>
+				<div id="navbar" class="navbar-collapse collapse">
+				  <ul class="nav navbar-nav">
+					<li ><a href="/result">今日巡检报告</a></li>
+					<li ><a href="/export">导出巡检报告</a></li>
+					<li class="active"><a href="/cluster">集群状态</a></li>
+				  </ul>
+				</div><!--/.nav-collapse -->
+		    </div>
+		</nav>
+		<div class="first">
+		</div>
+		<div class="page-header">
+			<h3>集群状态</h3>
+		</div>
+		<div class="col-md-offset-1 col-md-10">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>节点</th>
+						<th>类型</th>
+						<th>状态</th>
+					</tr>
+				</thead>  
+				<tbody>
+					{% for node in nodes %}
+					<tr>
+						<td>{{node.ip}}</td>
+						<td>{{node.type}}</td>
+						<td>{{node.status}}</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>		
+		</div>
+
+	</body>
+</html>

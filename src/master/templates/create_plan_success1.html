@@ -1,0 +1,24 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="author" content="zyl">
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/> 
+		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.css' %}"/>
+		
+		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
+    </head>
+	<body>
+    <title>巡检计划创建成功</title>
+	<div class="jumbotron">
+		<h2>巡检计划创建成功</h2>
+		<p class="lead">
+			您已成功创建立即执行的巡检计划，一旦有空闲巡检节点，会立刻执行您的巡检计划，因为是立即执行的巡检计划，所以不会在巡检计划列表中显示。
+		</p>
+		<a href="/plans" class="btn btn-large btn-primary">查看巡检计划列表</a>
+		<a href="/addplan" class="btn btn-large btn-primary ">继续添加巡检计划</a>
+    </div>
+	</body>
+</html>
