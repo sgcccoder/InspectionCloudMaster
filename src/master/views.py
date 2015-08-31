@@ -20,6 +20,7 @@ import logging
 import os
 import re
 import time
+import xmlrpclib
 import zipfile
 
 
@@ -34,6 +35,9 @@ LOG_ROOT = 'D:\\autoInspectionLog'
 #当前时间
 current = time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
 
+if not os.path.exists(LOG_ROOT):
+    os.makedirs(LOG_ROOT)
+    
 #配置日志
 logging.basicConfig(level=logging.INFO,
             format='%(asctime)s:%(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
@@ -56,7 +60,7 @@ def home(request):
     '''
            应用巡检云服务的主页
     '''
-    logger.info('访问主页')
+    logger.info(u'访问主页')
     t = get_template('home.html')
     html = t.render(Context())
     return HttpResponse(html)
@@ -94,9 +98,9 @@ def handle_uploaded_file(f, system, province, reporter):
             file = open(os.path.join(path, filename), 'wb+')
             file.write(data)
             file.close()
-            logger.info(filename + '已上传到服务器' + path)
+            logger.info(filename + u'已上传到服务器' + path)
             if filename == 'report.html':
-                logger.info('找到report.html')
+                logger.info(u'找到report.html')
                 report_path = os.path.join(path, filename)
                 report_path = report_path.replace(settings.MEDIA_ROOT, '')
                 #抽取通过测试的数目和未通过的数目
@@ -106,7 +110,7 @@ def handle_uploaded_file(f, system, province, reporter):
                 nums = re.findall(r'\d+', str)
                 fail_num = int(nums[0])
                 pass_num = int(nums[1])
-                logger.info('抽取通过测试的数目和未通过的数目')
+                logger.info(u'抽取通过测试的数目和未通过的数目')
     except Exception, e:
         logger.error(e)
     return report_path, fail_num + pass_num, pass_num
@@ -122,17 +126,17 @@ def upload_report(request):
         form = ReportForm(request.POST, request.FILES)
         if form.is_valid():
             data = form.cleaned_data
-            report_info = '报告人：' + data['reporter'] + '， 系统：' + data['system'] + '， 省：' + data['province'] + '， 市：' + data['city'] 
+            report_info = u'报告人：' + data['reporter'] + u'， 系统：' + data['system'] + u'， 省：' + data['province'] + u'， 市：' + data['city'] 
             logger.info(report_info)
             #获得巡检报告在服务端的存储路径，测试功能点数目，通过的数目
             report_path, total_num, pass_num = handle_uploaded_file(request.FILES['zip'], data['system'], data['province'], data['reporter'])
             #获得访问巡检报告文件的url
             report_url = default_storage.url(report_path)
-            logger.info('总测试数目：' + str(total_num)  + '  通过测试的数目：' + str(pass_num))
+            logger.info(u'总测试数目：' + str(total_num)  + u'  通过测试的数目：' + str(pass_num))
             #创建巡检报告实例
             instance = Report(reporter = data['reporter'], system = data['system'], province = data['province'], city = data['city'], total_num = total_num, pass_num = pass_num, report_path = report_url)
             instance.save()
-            logger.info('报告存入数据库')
+            logger.info(u'报告存入数据库')
             return HttpResponseRedirect('/success/')
     else:
         form = ReportForm()
@@ -150,7 +154,7 @@ def result(request):
     '''
            巡检报告展示的页面
     '''    
-    logger.info('查看巡检结果')
+    logger.info(u'查看巡检结果')
     t = get_template('result.html')
     systems = System.objects.all()
     context = {'systems': systems}
@@ -172,7 +176,7 @@ def search(request):
     q_end_date = end_date.strftime('%Y-%m-%d')
     q_status = request.REQUEST['status'] 
     report_list = Report.objects.all()
-    logger.info('获得所有报告')
+    logger.info(u'获得所有报告')
     if q_system != '':
         report_list = report_list.filter(system=q_system)
     if q_reporter != '':
@@ -189,10 +193,10 @@ def search(request):
         report_list = report_list.exclude(total_num=F('pass_num'))
     if q_status == 'pass':
         report_list = report_list.filter(total_num=F('pass_num'))
-    logger.info('获得满足查询条件的报告')
+    logger.info(u'获得满足查询条件的报告')
     #对查询结果进行排序，先按系统名称的升序排序，然后按照提交日期降序排序。
     report_list = report_list.order_by('system', '-sub_time')
-    logger.info('对查询结果进行排序')
+    logger.info(u'对查询结果进行排序')
     #分页
     paginator = Paginator(report_list, REPORT_PER_PAGE)
     page = request.GET.get('page')
@@ -206,7 +210,7 @@ def search(request):
         reports = paginator.page(paginator.num_pages)
 
     return render_to_response('report_list_div.html', {"reports": reports})
-    logger.info('分页')
+    logger.info(u'分页')
     
 
 def select_system(request):
@@ -231,7 +235,7 @@ def plan_list(request):
     '''
            巡检计划的展示页面
     '''  
-    logger.info('查看巡检计划')
+    logger.info(u'查看巡检计划')
     q_system = ''
     try:
        q_system=request.REQUEST['system']
@@ -251,7 +255,7 @@ def add_plan(request):
     '''
            添加巡检计划界面
     '''
-    logger.info('增加巡检计划')
+    logger.info(u'增加巡检计划')
     cur_system =  request.COOKIES["system"]
     cur_system_instance = System.objects.get(name=cur_system)
     testsuites = TestSuite.objects.filter(system=cur_system_instance)
@@ -284,12 +288,13 @@ def create_plan(request):
             logger.info(u'巡检脚本路径：' + script_path)
            
             if script_name not in scripts:
-                logger.info('新建巡检脚本')
+                logger.info(u'新建巡检脚本')
                 
-                script_str = '*** Settings ***' + os.linesep + 'Library           Selenium2Library' \
-                + os.linesep + 'Library           killIEDriverServer.py'  + os.linesep  + os.linesep\
-                + '*** Variables ***' + os.linesep + '${timeout}           ' + str(timeout) + os.linesep + os.linesep\
-                + '*** Test Cases ***' + os.linesep                
+                script_str = '*** Settings ***' + os.linesep  \
+                + 'Library           Selenium2Library'  + os.linesep  + os.linesep  \
+                + '*** Variables ***' + os.linesep \
+                + '${timeout}           ' + str(timeout) + os.linesep + os.linesep \
+                + '*** Test Cases ***' + os.linesep    
                 
                 #获得当前系统的所有测试用例
                 candidate_test_cases = TestCase.objects.filter(system = cur_system_instance)
@@ -305,27 +310,43 @@ def create_plan(request):
                     testcase_name = testcase_name.strip('\r')
                     testcase_instance = candidate_test_cases.get(name=testcase_name)
                     script_str = script_str + testcase_instance.name + os.linesep
-                    script_str = script_str + testcase_instance.content + os.linesep
+                    script_str = script_str + testcase_instance.content + os.linesep + os.linesep
                 
                 script_str = script_str + '    delete all cookies' + os.linesep + \
-                                   '    close browser' + os.linesep + \
-                                   '    kill IEDriverServer'
-                                   
+                                   '    close browser'
+                                                               
                 f = codecs.open(script_path, 'w', 'utf-8') 
                 f.write(script_str)
                 f.close()
                 scripts[script_name] = script_path
                 
+            taskinfo = {}
+            taskinfo['system'] = cur_system
+            taskinfo['executor'] = data['executor']
+            taskinfo['province'] = data['province']
+            taskinfo['city'] = data['city']
+            taskinfo_json = json.dumps(taskinfo)
+            para = {'type': 'file'}
+            para['path'] = script_path
+            para['str'] = taskinfo_json
+            para_list = []
+            para_list.append(para)
+            cluster_master_url = r'http://localhost:' + settings.MASTER_PORT + '/'
+            print cluster_master_url
+            proxy = xmlrpclib.ServerProxy(cluster_master_url)        
+            if data['exectype'] == 'now':
+                proxy.add_job_by_para('inspect', 'exec', para_list) 
+                return HttpResponseRedirect('/createplansuccess1/')
+            
+            #周期性巡检计划
+                        
             task_instance = Task(test_suite = testsuite_instance, 
                                  executor = data['executor'], 
                                  system = cur_system_instance, 
                                  province = data['province'], 
                                  city = data['city'])
             task_instance.save()
-            logger.info('巡检任务已存入数据库')
-            
-            if data['exectype'] == 'now':
-                 return HttpResponseRedirect('/createplansuccess1/')
+            logger.info(u'巡检任务已存入数据库')
                 
             exec_time = datetime.time(int(data['hour']), int(data['minute']))
 
@@ -337,16 +358,10 @@ def create_plan(request):
             #创建巡检计划实例                               
             plan_instance = Plan(task = task_instance, exec_time = exec_time, repeat_type = repeat_type)        
             plan_instance.save()       
-            logger.info('巡检计划已存入数据库')
+            logger.info(u'巡检计划已存入数据库')
             
-#            #将系统名称等辅助信息转换为json格式
-#            taskinfo = {}
-#            taskinfo['system'] = cur_system
-#            taskinfo['executor'] = data['executor']
-#            taskinfo['province'] = data['province']
-#            taskinfo['city'] = data['city']
-#            taskinfo['script_path'] = script_path
-#            taskinfo_json = json.dumps(taskinfo)
+
+
              
             
             return HttpResponseRedirect('/createplansuccess2/')
@@ -418,7 +433,7 @@ def create_testsuite(request):
             cur_system_instance = System.objects.get(name=cur_system)
             instance = TestSuite(system = cur_system_instance, name = data['name'], testcases=data['testcases'], description = data['description'])
             instance.save()
-            logger.info('测试套件已存入数据库')
+            logger.info(u'测试套件已存入数据库')
             return HttpResponseRedirect('/createtestsuitesuccess/')
     else:
         form = TestSuiteForm()
@@ -475,7 +490,7 @@ def create_testcase(request):
             cur_system_instance = System.objects.get(name=cur_system)
             instance = TestCase(system = cur_system_instance, name = data['name'], content = data['content'], description = data['description'])
             instance.save()
-            logger.info('测试用例已存入数据库')
+            logger.info(u'测试用例已存入数据库')
             return HttpResponseRedirect('/createtestcasesuccess/')
     else:
         form = TestCaseForm()
@@ -489,7 +504,7 @@ def export(request):
     response = HttpResponse(content_type='text/plain')                                   
     response['Content-Disposition'] = 'attachment; filename=data.txt'
     report_list = Report.objects.all()
-    logger.info('获得所有报告')
+    logger.info(u'获得所有报告')
     parser = Parser(logger)
     i = 1
     seperator = '#'
@@ -508,7 +523,7 @@ def export(request):
         response.write(str(i) + seperator + report.system + seperator \
                        + report.province + seperator + report.city + seperator \
                        + str(report.total_num) + seperator + str(report.pass_num) + seperator \
-                       + str_pass_rate + seperator +  report.sub_time.strftime("%Y-%m-%d %H:%M:%S") \
+                       + str_pass_rate + seperator +  report.sub_time.strftime("%Y-%m-%d") \
                        + seperator + report.reporter + seperator + ' ' + seperator + ' ' + detail_info + seperator)
         i += 1
     return response

@@ -23,12 +23,15 @@ class Parser:
             endtime = suitestatus.attrib['endtime']
             #调整精度到秒
             endtime = endtime.split('.')[0]
-            detail_info = '巡检开始时间 '+ starttime + '\\n' + '巡检结束时间 ' + endtime
+            detail_info = u'巡检开始时间 '+ starttime + '\\n' + u'巡检结束时间 ' + endtime
 
             #获得所有测试用例
             tests = suite.findall('test')
+            i = 1 #序号
             for test in tests:
                 detail_info += '\\n'
+                detail_info += str(i)
+                detail_info += ' '
                 detail_info += test.attrib['name']
                 detail_info += ' '
                 #获得测试用例状态
@@ -38,6 +41,7 @@ class Parser:
                     detail_info += u'通过'
                 else:
                     detail_info += u'未通过'
+                i += 1
         except Exception, e:  
             self.logger.error("Error: cannot parse file: " + file_path )
 

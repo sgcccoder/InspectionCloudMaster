@@ -22,13 +22,13 @@ class TestSuiteForm(forms.Form):
     description = forms.CharField(required=False, widget=forms.Textarea) 
 
 REPEAT_TYPE_CHOICES = (
-    ('1', '每周一'),
-    ('2', '每周二'),
-    ('3', '每周三'),
-    ('4', '每周四'),
-    ('5', '每周五'),
-    ('6', '每周六'),
-    ('7', '每周日'),
+    ('1', u'每周一'),
+    ('2', u'每周二'),
+    ('3', u'每周三'),
+    ('4', u'每周四'),
+    ('5', u'每周五'),
+    ('6', u'每周六'),
+    ('7', u'每周日'),
 )
 
 class PlanForm(forms.Form):
