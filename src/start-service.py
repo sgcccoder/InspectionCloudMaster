@@ -1,5 +1,2 @@
-﻿#import sys
 import os
-#reload(sys)
-#sys.setdefaultencoding("utf-8")
-os.system('python manage.py runserver --noreload')
+os.system('python manage.py runserver 10.4.15.76:8000 --noreload')

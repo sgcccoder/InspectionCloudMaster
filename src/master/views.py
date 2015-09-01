@@ -12,6 +12,7 @@ from django.template.context import Context, RequestContext
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from master.cluster import Cluster
+from master.my_proxy import MyProxy
 from master.parser import Parser
 import codecs
 import datetime
@@ -20,7 +21,6 @@ import logging
 import os
 import re
 import time
-import xmlrpclib
 import zipfile
 
 
@@ -286,6 +286,8 @@ def create_plan(request):
             #巡检脚本路径
             script_path = settings.SCRIPT_ROOT + cur_system_instance.english_name + str(testsuite_instance.id) + '.txt'
             logger.info(u'巡检脚本路径：' + script_path)
+            if not os.path.exists(settings.SCRIPT_ROOT):
+                os.makedirs(LOG_ROOT)
            
             if script_name not in scripts:
                 logger.info(u'新建巡检脚本')
@@ -331,15 +333,13 @@ def create_plan(request):
             para['str'] = taskinfo_json
             para_list = []
             para_list.append(para)
-            cluster_master_url = r'http://localhost:' + settings.MASTER_PORT + '/'
-            print cluster_master_url
-            proxy = xmlrpclib.ServerProxy(cluster_master_url)        
+            
+            proxy = MyProxy(settings.CLUSTER_MASTER_URL)        
             if data['exectype'] == 'now':
-                proxy.add_job_by_para('inspect', 'exec', para_list) 
+                proxy.add_job('inspect', 'exec', para_list) 
                 return HttpResponseRedirect('/createplansuccess1/')
             
             #周期性巡检计划
-                        
             task_instance = Task(test_suite = testsuite_instance, 
                                  executor = data['executor'], 
                                  system = cur_system_instance, 
@@ -347,8 +347,11 @@ def create_plan(request):
                                  city = data['city'])
             task_instance.save()
             logger.info(u'巡检任务已存入数据库')
-                
-            exec_time = datetime.time(int(data['hour']), int(data['minute']))
+            
+            hour = int(data['hour'])
+            minute = int(data['minute'])
+ 
+            exec_time = datetime.time(hour, minute)
 
             #用7位二进制数表示重复类型，例如每周一至周五运行，对应的二进制数为（0011111），对应的10进制数为31                       
             repeat_type = 0
@@ -357,13 +360,11 @@ def create_plan(request):
                 repeat_type += 2**i
             #创建巡检计划实例                               
             plan_instance = Plan(task = task_instance, exec_time = exec_time, repeat_type = repeat_type)        
-            plan_instance.save()       
+            plan_instance.save()  
+            proxy.add_plan('inspect', 'exec', para_list, hour, minute, data['repeat_type'], plan_instance.id)
+     
             logger.info(u'巡检计划已存入数据库')
-            
-
-
-             
-            
+                        
             return HttpResponseRedirect('/createplansuccess2/')
     else:
         form = PlanForm()
