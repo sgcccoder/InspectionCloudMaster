@@ -19,5 +19,12 @@ def display_repeat_type(repeat_type):
         repeat_type /= 2
         i += 1
     return description
-    
+
+@register.filter
+def english_to_chinese(input_str):
+    '''
+          英译汉
+    '''
+    my_dict = {'idle' : '空闲', 'busy': '忙碌', 'unavailable': '不可达', 'stopped': '已停止'}
+    return my_dict[input_str] 
     

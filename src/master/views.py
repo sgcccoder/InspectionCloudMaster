@@ -53,9 +53,6 @@ scripts= {}
 #超时时间，单位是秒
 timeout = 60
 
-#集群对象
-cluster = Cluster()
-
 def home(request):
     '''
            应用巡检云服务的主页
@@ -534,7 +531,8 @@ def clusterStatus(request):
           集群状态显示界面
     '''
     t = get_template('cluster_status.html')
-    nodes = cluster.getStatus()
-    context = {'nodes': nodes}
+    proxy = MyProxy(settings.CLUSTER_MASTER_URL)
+    cluster = Cluster(proxy.get_status())
+    context = {'nodes': cluster.nodes}
     html = t.render(context)
     return HttpResponse(html)    

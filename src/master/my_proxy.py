@@ -23,4 +23,7 @@ class MyProxy:
     
 #    def remove_plan(self, plan_id):
 #        sched.remove_job(plan_id)
+
+    def get_status(self):
+        return self.master_proxy.get_slave_list()
         

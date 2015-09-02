@@ -1,15 +1,9 @@
 from master.node import Node
 
 class Cluster:
-    def __init__(self):
+    def __init__(self, slave_list):
         self.nodes = []
-        
-    def getStatus(self):
-        self.nodes = []
-        f = open('D:\\cluster_status.txt')
-        for line in f.readlines():
-            str_list = line.split(' ')
-            node = Node(str_list[0], str_list[1], str_list[2])
+        for slave in slave_list:
+            node = Node(slave['IP'], slave['status'])
             self.nodes.append(node)
-        return self.nodes
                             

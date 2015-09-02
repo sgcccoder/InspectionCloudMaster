@@ -12,7 +12,7 @@
 		<script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
     </head>
 	<body>
-		<title>新增测试用例</title>
+		<title>新增巡检用例</title>
 		<!-- Fixed navbar -->
 		<nav class="navbar navbar-inverse navbar-fixed-top">
 		    <div class="container">
@@ -30,24 +30,24 @@
 						</ul>	
 					</li>
 				    <li class="dropdown">
-						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试套件 <span class="caret"></span></a>
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">巡检套件 <span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li>
-								<a href="/testsuites">测试套件列表</a>
+								<a href="/testsuites">巡检套件列表</a>
 							</li>
 							<li>
-								<a href="/addtestsuite">增加测试套件</a>
+								<a href="/addtestsuite">增加巡检套件</a>
 							</li>							
 						</ul>	
 					</li>
 				    <li class="dropdown">
-						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">测试用例 <span class="caret"></span></a>
+						<a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle">巡检用例 <span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li>
-								<a href="/testcases">测试用例列表</a>
+								<a href="/testcases">巡检用例列表</a>
 							</li>
 							<li>
-								<a href="/addtestcase">增加测试用例</a>
+								<a href="/addtestcase">增加巡检用例</a>
 							</li>							
 						</ul>	
 					</li>					
@@ -58,23 +58,23 @@
 		<div class="first">
 		</div>
 		<div class="page-header">
-			<h3>新增测试用例</h3>
+			<h3>新增巡检用例</h3>
 		</div>			
 		<form class="form-horizontal"  method="POST" action="/createtestcase/">{% csrf_token %}
 			<div class="form-group">
-				<label for="name" class="col-md-2 control-label">测试用例名称</label>
+				<label for="name" class="col-md-2 control-label">巡检用例名称</label>
 				<div class="col-md-9">
 					<input type="text" name="name" id="name"/>
 			    </div>
 			</div>
 			<div class="form-group">
-				<label for="content" class="col-md-2 control-label">测试用例</label>
+				<label for="content" class="col-md-2 control-label">巡检用例</label>
 				<div class="col-md-9">
 					<textarea class="form-control" name="content" id="content" rows="10"></textarea>
 			    </div>
 			</div>
 			<div class="form-group">
-				<label for="description" class="col-md-2 control-label">测试用例描述</label>
+				<label for="description" class="col-md-2 control-label">巡检用例描述</label>
 				<div class="col-md-9">
 					<textarea class="form-control" name="description" id="description"></textarea>
 			    </div>
