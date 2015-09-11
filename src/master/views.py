@@ -358,7 +358,7 @@ def create_plan(request):
             #创建巡检计划实例                               
             plan_instance = Plan(task = task_instance, exec_time = exec_time, repeat_type = repeat_type)        
             plan_instance.save()  
-            proxy.add_plan('inspect', 'exec', para_list, hour, minute, data['repeat_type'], plan_instance.id)
+            proxy.add_plan(hour, minute, repeat_type,'inspect', 'exec', para_list, plan_instance.id)
      
             logger.info(u'巡检计划已存入数据库')
                         
