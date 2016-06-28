@@ -1,2 +1,2 @@
 import os
-os.system('python manage.py runserver 192.168.2.46:80 --noreload')
+os.system('python manage.py runserver 127.0.0.1:80 --noreload')

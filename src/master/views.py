@@ -542,8 +542,10 @@ def compatibility_test_select_system(request):
            兼容性选择系统
     '''
     logger.info(u'兼容性选择系统')
+    systems = System.objects.all()
+    context = {'systems': systems}
     t = get_template('compatibility_test_select_system.html')
-    html = t.render(Context())
+    html = t.render(context)
     return HttpResponse(html)
 
 def compatibility_test(request):
