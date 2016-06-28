@@ -30,7 +30,7 @@ import zipfile
 REPORT_PER_PAGE = 50
 
 #日志根目录
-LOG_ROOT = 'D:\\autoInspectionLog'
+LOG_ROOT = 'C:\\autoInspectionLog'
 
 #当前时间
 current = time.strftime("%Y%m%d%H%M%S",time.localtime(time.time()))
@@ -535,4 +535,78 @@ def clusterStatus(request):
     cluster = Cluster(proxy.get_status())
     context = {'nodes': cluster.nodes}
     html = t.render(context)
-    return HttpResponse(html)    
+    return HttpResponse(html)
+
+def compatibility_test_select_system(request):
+    '''
+           兼容性选择系统
+    '''
+    logger.info(u'兼容性选择系统')
+    t = get_template('compatibility_test_select_system.html')
+    html = t.render(Context())
+    return HttpResponse(html)
+
+def compatibility_test(request):
+    '''
+    兼容性测试
+    '''
+    script_path_ie =  settings.SCRIPT_ROOT + 'oa_ie.txt'
+    print script_path_ie
+    taskinfo_ie8 = {}
+    taskinfo_ie8['system'] = 'OA_IE8'
+    taskinfo_ie8['executor'] = '测试人'
+    taskinfo_ie8['province'] = '北京'
+    taskinfo_ie8['city'] = '北京'
+    taskinfo_ie8_json = json.dumps(taskinfo_ie8)
+    para_ie8 = {'type': 'file'}
+    para_ie8['path'] = script_path_ie
+    para_ie8['str'] = taskinfo_ie8_json
+    para_list_ie8 = []
+    para_list_ie8.append(para_ie8)
+    proxy = MyProxy(settings.CLUSTER_MASTER_URL)
+    proxy.add_job_with_type('inspect', 'IE8', 'exec', para_list_ie8)
+
+    taskinfo_ie10 = {}
+    taskinfo_ie10['system'] = 'OA_IE10'
+    taskinfo_ie10['executor'] = '测试人'
+    taskinfo_ie10['province'] = '北京'
+    taskinfo_ie10['city'] = '北京'
+    taskinfo_ie10_json = json.dumps(taskinfo_ie10)
+    para_ie10 = {'type': 'file'}
+    para_ie10['path'] = script_path_ie
+    para_ie10['str'] = taskinfo_ie10_json
+    para_list_ie10 = []
+    para_list_ie10.append(para_ie10)
+    proxy = MyProxy(settings.CLUSTER_MASTER_URL)
+    proxy.add_job_with_type('inspect', 'IE10', 'exec', para_list_ie10)
+    
+    script_path_firefox =  settings.SCRIPT_ROOT + 'oa_firefox.txt'
+    taskinfo_fx = {}
+    taskinfo_fx['system'] = 'OA_FIREFOX'
+    taskinfo_fx['executor'] = '测试人'
+    taskinfo_fx['province'] = '北京'
+    taskinfo_fx['city'] = '北京'
+    taskinfo_fx_json = json.dumps(taskinfo_fx)
+    para_fx = {'type': 'file'}
+    para_fx['path'] = script_path_firefox
+    para_fx['str'] = taskinfo_fx_json
+    para_list_fx = []
+    para_list_fx.append(para_fx)
+    proxy = MyProxy(settings.CLUSTER_MASTER_URL)
+    proxy.add_job_with_type('inspect', 'FX', 'exec', para_list_fx)
+    
+    script_path_chrome =  settings.SCRIPT_ROOT + 'oa_chrome.txt'
+    taskinfo_chrome = {}
+    taskinfo_chrome['system'] = 'OA_CHROME'
+    taskinfo_chrome['executor'] = '测试人'
+    taskinfo_chrome['province'] = '北京'
+    taskinfo_chrome['city'] = '北京'
+    taskinfo_chrome_json = json.dumps(taskinfo_chrome)
+    para_chrome = {'type': 'file'}
+    para_chrome['path'] = script_path_chrome
+    para_chrome['str'] = taskinfo_chrome_json
+    para_chrome_list = []
+    para_chrome_list.append(para_chrome)
+    proxy.add_job_with_type('inspect', 'CHROME', 'exec', para_chrome_list)
+    return HttpResponseRedirect('/result/')
+

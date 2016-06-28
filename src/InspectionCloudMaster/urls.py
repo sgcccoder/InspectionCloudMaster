@@ -28,6 +28,9 @@ urlpatterns = [
     url(r'^success/$',  views.success),   
     url(r'^search/',  views.search, name='search'),
     url(r'^selectsystem/',  views.select_system),
+
+    url(r'^compatibilityTestSelectSystem/',  views.compatibility_test_select_system),
+    url(r'^compatibilityTest/',  views.compatibility_test),
     url(r'^export/',  views.export),
     url(r'^cluster/',  views.clusterStatus),
     

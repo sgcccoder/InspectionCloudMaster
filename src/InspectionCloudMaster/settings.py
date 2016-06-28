@@ -103,8 +103,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 #MEDIA_ROOT = os.path.join(BASE_DIR,'report/').replace('\\','/')
-MEDIA_ROOT= 'D:\\report\\' 
+MEDIA_ROOT= 'C:\\report\\' 
 MEDIA_URL = '/report/'
-SCRIPT_ROOT = 'D:\\script\\'
+SCRIPT_ROOT = 'C:\\script\\'
 MASTER_PORT = '8859'
-CLUSTER_MASTER_URL = 'http://localhost:8859/'
+CLUSTER_MASTER_URL = 'http://192.168.2.46:8859/'
