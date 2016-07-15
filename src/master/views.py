@@ -1,6 +1,6 @@
 #coding:utf-8
-from .forms import ReportForm, TestCaseForm, TestSuiteForm, PlanForm
-from .models import Report, System, TestCase, Plan, Task, TestSuite
+from .forms import ReportForm, TestCaseForm, TestSuiteForm, PlanForm, CompatibilityTestScriptForm
+from .models import Report, System, TestCase, Plan, Task, TestSuite, CompatibilityScript
 from InspectionCloudMaster import settings
 from django.contrib import messages
 from django.core.files.storage import default_storage
@@ -108,9 +108,15 @@ def handle_uploaded_file(f, system, province, reporter):
                 fail_num = int(nums[0])
                 pass_num = int(nums[1])
                 logger.info(u'抽取通过测试的数目和未通过的数目')
+            elif filename == 'output.xml':
+                logger.info(u'找到output.xml')
+                output_xml_path = os.path.join(path, filename)
+                parser = Parser(logger)
+                apdex_index = parser.calculate_apdex(output_xml_path)
+
     except Exception, e:
         logger.error(e)
-    return report_path, fail_num + pass_num, pass_num
+    return report_path, fail_num + pass_num, pass_num, apdex_index
 
 
 @csrf_exempt
@@ -126,12 +132,12 @@ def upload_report(request):
             report_info = u'报告人：' + data['reporter'] + u'， 系统：' + data['system'] + u'， 省：' + data['province'] + u'， 市：' + data['city'] 
             logger.info(report_info)
             #获得巡检报告在服务端的存储路径，测试功能点数目，通过的数目
-            report_path, total_num, pass_num = handle_uploaded_file(request.FILES['zip'], data['system'], data['province'], data['reporter'])
+            report_path, total_num, pass_num, apdex = handle_uploaded_file(request.FILES['zip'], data['system'], data['province'], data['reporter'])
             #获得访问巡检报告文件的url
             report_url = default_storage.url(report_path)
             logger.info(u'总测试数目：' + str(total_num)  + u'  通过测试的数目：' + str(pass_num))
             #创建巡检报告实例
-            instance = Report(reporter = data['reporter'], system = data['system'], province = data['province'], city = data['city'], total_num = total_num, pass_num = pass_num, report_path = report_url)
+            instance = Report(reporter = data['reporter'], system = data['system'], province = data['province'], city = data['city'], total_num = total_num, pass_num = pass_num, report_path = report_url, apdex=apdex)
             instance.save()
             logger.info(u'报告存入数据库')
             return HttpResponseRedirect('/success/')
@@ -192,7 +198,7 @@ def search(request):
         report_list = report_list.filter(total_num=F('pass_num'))
     logger.info(u'获得满足查询条件的报告')
     #对查询结果进行排序，先按系统名称的升序排序，然后按照提交日期降序排序。
-    report_list = report_list.order_by('system', '-sub_time')
+    report_list = report_list.order_by('-sub_time')
     logger.info(u'对查询结果进行排序')
     #分页
     paginator = Paginator(report_list, REPORT_PER_PAGE)
@@ -284,7 +290,7 @@ def create_plan(request):
             script_path = settings.SCRIPT_ROOT + cur_system_instance.english_name + str(testsuite_instance.id) + '.txt'
             logger.info(u'巡检脚本路径：' + script_path)
             if not os.path.exists(settings.SCRIPT_ROOT):
-                os.makedirs(LOG_ROOT)
+                os.makedirs(settings.SCRIPT_ROOT)
            
             if script_name not in scripts:
                 logger.info(u'新建巡检脚本')
@@ -537,14 +543,91 @@ def clusterStatus(request):
     html = t.render(context)
     return HttpResponse(html)
 
-def compatibility_test_select_system(request):
+def add_compatibility_test(request):
+    '''
+          新增兼容性测试界面
+    '''
+    systems = System.objects.all()
+    context = {'systems': systems}
+    t = get_template('add_compatibility_test_script.html')
+    html = t.render(context)
+    return HttpResponse(html)
+
+@csrf_exempt
+def create_compatibility_test_script(request):
+    '''
+
+        创建兼容性测试
+    '''
+    logger.info(u'创建兼容性测试')
+    if request.method == 'POST':
+        form = CompatibilityTestScriptForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            cur_system = data['system']
+            script_content = data['content']
+            cur_system_instance = System.objects.get(name=cur_system)
+            if not os.path.exists(settings.SCRIPT_ROOT):
+                os.makedirs(settings.SCRIPT_ROOT)
+            #输入的脚本必须是IE版本
+            script_path_ie = settings.SCRIPT_ROOT + cur_system_instance.english_name + '_ie.txt'
+            f = codecs.open(script_path_ie, 'w', 'utf-8')
+            f.write(script_content)
+            f.close()
+            logger.info(u'成功创建适用于IE浏览器的兼容性测试脚本文件')
+
+            #找到open browser关键字所在行
+            pattern = re.compile(r'.*open browser.*ie')
+            match = pattern.search(script_content)
+            open_browser_by_ie = ''
+            if match:
+                open_browser_by_ie = match.group(0)
+            else:
+                logger.error(u'未找到open browser关键字')
+
+            #创建FIERFOX版本的脚本
+            open_browser_by_firefox = open_browser_by_ie[:-3]
+            print open_browser_by_firefox
+            script_content_firefox = script_content.replace(open_browser_by_ie, open_browser_by_firefox)
+            script_path_firefox = settings.SCRIPT_ROOT + cur_system_instance.english_name + '_firefox.txt'
+            f = codecs.open(script_path_firefox, 'w', 'utf-8')
+            f.write(script_content_firefox)
+            f.close()
+            logger.info(u'成功创建适用于FIREFOX浏览器的兼容性测试脚本文件')
+
+            #创建CHROME版本的脚本
+            open_browser_by_chrome = open_browser_by_firefox + 'chrome'
+            script_content_chrome = script_content.replace(open_browser_by_ie, open_browser_by_chrome)
+            script_path_chrome = settings.SCRIPT_ROOT + cur_system_instance.english_name + '_chrome.txt'
+            f = codecs.open(script_path_chrome, 'w', 'utf-8')
+            f.write(script_content_chrome)
+            f.close()
+            logger.info(u'成功创建适用于CHROME浏览器的兼容性测试脚本文件')
+
+            compatiblity_script_instance = CompatibilityScript(system = cur_system_instance, script_path_ie = script_path_ie, script_path_firefox = script_path_firefox, script_path_chrome = script_path_chrome)
+            compatiblity_script_instance.save()
+            logger.info(u'兼容性测试脚本已存入数据库')
+            return HttpResponseRedirect('/createcompatiblitytestscriptsuccess/')
+    else:
+        form = CompatibilityTestScriptForm()
+    return render_to_response('add_compatibility_test_script.html', {'form': form})
+
+def create_compatibility_test_script_success(request):
+    '''
+           巡检报告提交成功的页面
+    '''
+    t = get_template('create_compatibility_test_script_success.html')
+    html = t.render(Context())
+    return HttpResponse(html)
+
+def create_compatibility_test_task(request):
     '''
            兼容性选择系统
     '''
     logger.info(u'兼容性选择系统')
     systems = System.objects.all()
     context = {'systems': systems}
-    t = get_template('compatibility_test_select_system.html')
+    t = get_template('create_compatibility_test_task.html')
     html = t.render(context)
     return HttpResponse(html)
 
@@ -552,63 +635,70 @@ def compatibility_test(request):
     '''
     兼容性测试
     '''
-    script_path_ie =  settings.SCRIPT_ROOT + 'oa_ie.txt'
-    print script_path_ie
-    taskinfo_ie8 = {}
-    taskinfo_ie8['system'] = 'OA_IE8'
-    taskinfo_ie8['executor'] = '测试人'
-    taskinfo_ie8['province'] = '北京'
-    taskinfo_ie8['city'] = '北京'
-    taskinfo_ie8_json = json.dumps(taskinfo_ie8)
-    para_ie8 = {'type': 'file'}
-    para_ie8['path'] = script_path_ie
-    para_ie8['str'] = taskinfo_ie8_json
-    para_list_ie8 = []
-    para_list_ie8.append(para_ie8)
-    proxy = MyProxy(settings.CLUSTER_MASTER_URL)
-    proxy.add_job_with_type('inspect', 'IE8', 'exec', para_list_ie8)
+    logger.info(u'开始兼容性测试')
+    if request.method == 'POST':
+        form = PlanForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            cur_system = data['system']
+            cur_system_instance = System.objects.get(name=cur_system)
+            compatibility_script_instance = CompatibilityScript.objects.get(system = cur_system_instance)
+            proxy = MyProxy(settings.CLUSTER_MASTER_URL)
 
-    taskinfo_ie10 = {}
-    taskinfo_ie10['system'] = 'OA_IE10'
-    taskinfo_ie10['executor'] = '测试人'
-    taskinfo_ie10['province'] = '北京'
-    taskinfo_ie10['city'] = '北京'
-    taskinfo_ie10_json = json.dumps(taskinfo_ie10)
-    para_ie10 = {'type': 'file'}
-    para_ie10['path'] = script_path_ie
-    para_ie10['str'] = taskinfo_ie10_json
-    para_list_ie10 = []
-    para_list_ie10.append(para_ie10)
-    proxy = MyProxy(settings.CLUSTER_MASTER_URL)
-    proxy.add_job_with_type('inspect', 'IE10', 'exec', para_list_ie10)
-    
-    script_path_firefox =  settings.SCRIPT_ROOT + 'oa_firefox.txt'
-    taskinfo_fx = {}
-    taskinfo_fx['system'] = 'OA_FIREFOX'
-    taskinfo_fx['executor'] = '测试人'
-    taskinfo_fx['province'] = '北京'
-    taskinfo_fx['city'] = '北京'
-    taskinfo_fx_json = json.dumps(taskinfo_fx)
-    para_fx = {'type': 'file'}
-    para_fx['path'] = script_path_firefox
-    para_fx['str'] = taskinfo_fx_json
-    para_list_fx = []
-    para_list_fx.append(para_fx)
-    proxy = MyProxy(settings.CLUSTER_MASTER_URL)
-    proxy.add_job_with_type('inspect', 'FX', 'exec', para_list_fx)
-    
-    script_path_chrome =  settings.SCRIPT_ROOT + 'oa_chrome.txt'
-    taskinfo_chrome = {}
-    taskinfo_chrome['system'] = 'OA_CHROME'
-    taskinfo_chrome['executor'] = '测试人'
-    taskinfo_chrome['province'] = '北京'
-    taskinfo_chrome['city'] = '北京'
-    taskinfo_chrome_json = json.dumps(taskinfo_chrome)
-    para_chrome = {'type': 'file'}
-    para_chrome['path'] = script_path_chrome
-    para_chrome['str'] = taskinfo_chrome_json
-    para_chrome_list = []
-    para_chrome_list.append(para_chrome)
-    proxy.add_job_with_type('inspect', 'CHROME', 'exec', para_chrome_list)
-    return HttpResponseRedirect('/result/')
+            taskinfo_ie8 = {}
+            taskinfo_ie8['system'] = cur_system
+            taskinfo_ie8['executor'] = data['executor']
+            taskinfo_ie8['province'] = data['province']
+            taskinfo_ie8['city'] = data['city']
+            taskinfo_ie8_json = json.dumps(taskinfo_ie8)
+            para_ie8 = {'type': 'file'}
+            para_ie8['path'] = compatibility_script_instance.script_ie_path
+            para_ie8['str'] = taskinfo_ie8_json
+            para_list_ie8 = []
+            para_list_ie8.append(para_ie8)
+            proxy.add_job_with_type('inspect', 'IE8', 'exec', para_list_ie8)
+
+            taskinfo_ie10 = {}
+            taskinfo_ie10['system'] = cur_system
+            taskinfo_ie10['executor'] = data['executor']
+            taskinfo_ie10['province'] = data['province']
+            taskinfo_ie10['city'] = data['city']
+            taskinfo_ie10_json = json.dumps(taskinfo_ie10)
+            para_ie10 = {'type': 'file'}
+            para_ie10['path'] = compatibility_script_instance.script_ie_path
+            para_ie10['str'] = taskinfo_ie10_json
+            para_list_ie10 = []
+            para_list_ie10.append(para_ie10)
+            proxy.add_job_with_type('inspect', 'IE10', 'exec', para_list_ie10)
+
+            taskinfo_fx = {}
+            taskinfo_fx['system'] = cur_system
+            taskinfo_fx['executor'] = data['executor']
+            taskinfo_fx['province'] = data['province']
+            taskinfo_fx['city'] = data['city']
+            taskinfo_fx_json = json.dumps(taskinfo_fx)
+            para_fx = {'type': 'file'}
+            para_fx['path'] = compatibility_script_instance.script_firefox_path
+            para_fx['str'] = taskinfo_fx_json
+            para_list_fx = []
+            para_list_fx.append(para_fx)
+            proxy = MyProxy(settings.CLUSTER_MASTER_URL)
+            proxy.add_job_with_type('inspect', 'FX', 'exec', para_list_fx)
+
+            taskinfo_chrome = {}
+            taskinfo_chrome['system'] = cur_system
+            taskinfo_chrome['executor'] = data['executor']
+            taskinfo_chrome['province'] = data['province']
+            taskinfo_chrome['city'] = data['city']
+            taskinfo_chrome_json = json.dumps(taskinfo_chrome)
+            para_chrome = {'type': 'file'}
+            para_chrome['path'] = compatibility_script_instance.script_chrome_path
+            para_chrome['str'] = taskinfo_chrome_json
+            para_chrome_list = []
+            para_chrome_list.append(para_chrome)
+            proxy.add_job_with_type('inspect', 'CHROME', 'exec', para_chrome_list)
+            return HttpResponseRedirect('/result/')
+
+
+
 

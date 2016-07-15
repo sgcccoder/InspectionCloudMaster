@@ -4,17 +4,6 @@
     <head>
 		<meta charset="utf-8">
 		<meta name="author" content="zyl">
-		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/> 
-		<link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.cs' %}"/>
-		<link rel="stylesheet" type="text/css" href="{% static 'master/css/pikaday.css' %}"/>
-		<link rel="stylesheet" type="text/css" href="{% static 'master/css/my.css' %}"/>
-		
-		<script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
-		<script src= "{% static 'master/js/bootstrap.min.js"></script>
-		<script src= "{% static 'master/js/moment.js' %}"></script>
-		<script src= "{% static 'master/js/pikaday.js' %}"></script>
-		<script src= "{% static 'master/js/distpicker.data.js' %}"></script>
-		<script src= "{% static 'master/js/distpicker.js' %}"></script>
     </head>
     <body>
 		<title>巡检报告展示平台</title>
@@ -82,6 +71,18 @@
 		</div>
 		<h3>报告摘要</h3>
 		{% include "report_list_div.html" %}
+
+        <link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.cs' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'master/css/pikaday.css' %}"/>
+        <link rel="stylesheet" type="text/css" href="{% static 'master/css/my.css' %}"/>
+
+        <script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+        <script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
+        <script src= "{% static 'master/js/moment.js' %}"></script>
+        <script src= "{% static 'master/js/pikaday.js' %}"></script>
+        <script src= "{% static 'master/js/distpicker.data.js' %}"></script>
+        <script src= "{% static 'master/js/distpicker.js' %}"></script>
 		
 		<script type="text/javascript">
 			//初始化日期选择框

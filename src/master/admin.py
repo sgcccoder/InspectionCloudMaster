@@ -1,7 +1,7 @@
 #coding:utf-8
 from .models import Report
 from master.models import System, TestCase, TestSuite, Task, \
-    Plan
+    Plan, CompatibilityScript
 from django.contrib import admin
 
 class ReportAdmin(admin.ModelAdmin):
@@ -28,3 +28,4 @@ admin.site.register(TestCase)
 admin.site.register(TestSuite)
 admin.site.register(Task)
 admin.site.register(Plan)
+admin.site.register(CompatibilityScript)

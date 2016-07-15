@@ -1,0 +1,72 @@
+﻿{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta name="author" content="zyl">
+    </head>
+	<body>
+		<title>创建兼容性测试任务</title>
+
+		<div class="page-header">
+			<h3>创建兼容性测试任务</h3>
+		</div>
+		<form class="form-horizontal"  action="/compatibilityTest/">
+			<div class="form-group">
+				<label for="system" class="col-md-1 control-label">系统名称</label>
+				<div class="col-md-10">
+					<select name="system" id="system">
+						<option value="" selected>—— 系统 ——</option>
+						{% for system in systems %}
+						<option value={{system.name}}>{{system.name}}</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+            <div class="form-group">
+                <label for="executor" class="col-md-1 control-label">测试人姓名</label>
+                <div class="col-md-2">
+                    <input type="text"  name="executor" id="executor" >
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-md-1 control-label">地区</label>
+                <div class="col-md-4">
+                    <div class="distpicker1">
+                        <select name="province" id="province"></select>
+                        <select name="city" id="city"></select>
+                    </div>
+                </div>
+            </div>
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-10">
+					<button id="CTButton" type="submit" class="btn btn-primary">兼容性测试</button>
+					<a id="state_text"></a>
+				</div>
+			</div>
+		</form>
+<!--
+	{% for field in form %}
+    <div class="fieldWrapper">
+        {{ field.errors }}
+        {{ field.label_tag }} {{ field }}
+    </div>
+	{% endfor %}
+-->
+	
+	</body>
+    <link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap.min.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'master/css/bootstrap-theme.min.cs' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'master/css/my.css' %}"/>
+
+    <script src= "{% static 'master/js/jquery-1.11.3.min.js' %}"></script>
+    <script src= "{% static 'master/js/bootstrap.min.js' %}"></script>
+    <script src= "{% static 'master/js/distpicker.data.js' %}"></script>
+    <script src= "{% static 'master/js/distpicker.js' %}"></script>
+    <script type="text/javascript">
+        //初始化地区选择
+        $(".distpicker1").distpicker({
+            autoSelect: false
+        });
+    </script>
+</html>

@@ -42,4 +42,7 @@ class PlanForm(forms.Form):
     repeat_type = forms.MultipleChoiceField(required=False, 
                                     widget=CheckboxSelectMultiple(),
                                     choices=REPEAT_TYPE_CHOICES)
-        
+
+class CompatibilityTestScriptForm(forms.Form):
+    system = forms.CharField()
+    content = forms.CharField(widget=forms.Textarea)

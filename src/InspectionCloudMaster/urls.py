@@ -29,8 +29,11 @@ urlpatterns = [
     url(r'^search/',  views.search, name='search'),
     url(r'^selectsystem/',  views.select_system),
 
-    url(r'^compatibilityTestSelectSystem/',  views.compatibility_test_select_system),
-    url(r'^compatibilityTest/',  views.compatibility_test),
+    url(r'^addcompatibilitytest/',  views.add_compatibility_test),
+    url(r'^createcompatibilitytestscript/',  views.create_compatibility_test_script),
+    url(r'^createcompatiblitytestscriptsuccess/',  views.create_compatibility_test_script_success),
+    url(r'^createcompatibilitytesttask/',  views.create_compatibility_test_task),
+
     url(r'^export/',  views.export),
     url(r'^cluster/',  views.clusterStatus),
     
